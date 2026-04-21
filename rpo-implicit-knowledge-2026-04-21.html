@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RPO事業部 暗黙知ケーススタディ集 — BPIO</title>
+  <style>
+    body {
+      font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+      color: #1a1a1a; background: #fff; line-height: 1.7; margin: 0; padding: 0;
+    }
+    html { font-size: 15px; }
+    * { box-sizing: border-box; }
+    #sticky-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.97); border-bottom: 1px solid #ccc;
+      padding: 12px 20px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    }
+    #sticky-nav .nav-label { font-size: 0.72rem; font-weight: 700; color: #777; letter-spacing: 0.05em; margin-right: 4px; white-space: nowrap; }
+    .pill {
+      display: inline-block; padding: 5px 16px; font-size: 0.78rem; font-weight: 600;
+      color: #555; text-decoration: none; border: 1px solid #ccc;
+      border-radius: 999px; transition: all 0.2s ease; white-space: nowrap;
+    }
+    .pill:hover, .pill.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+    #main { max-width: 920px; margin: 0 auto; padding: 40px 48px 80px; }
+    .report-header { border-bottom: 2px solid #1a1a1a; padding-bottom: 20px; margin-bottom: 32px; }
+    .report-header h1 { font-size: 1.6rem; font-weight: 700; line-height: 1.3; margin-bottom: 4px; }
+    .report-header .subtitle { font-size: 0.9rem; color: #555; margin-bottom: 16px; }
+    .report-header .summary-box { background: #f7f7f7; border: 1px solid #ddd; padding: 16px 20px; margin-top: 16px; }
+    .report-header .summary-box h3 { font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; margin-top: 0; }
+    .report-header .summary-box ul { padding-left: 20px; font-size: 0.82rem; margin: 0; }
+    .report-header .summary-box li { margin-bottom: 4px; }
+    h2.section-title {
+      font-size: 1.2rem; font-weight: 700;
+      border-bottom: 1px solid #999; padding-bottom: 6px;
+      margin-top: 48px; margin-bottom: 20px;
+    }
+    h3.subsection-title {
+      font-size: 1.0rem; font-weight: 700; margin-top: 32px; margin-bottom: 12px;
+      padding-left: 10px; border-left: 3px solid #555;
+    }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 0.82rem; }
+    table th, table td { border: 1px solid #bbb; padding: 7px 10px; text-align: left; vertical-align: top; }
+    table th { background: #f0f0f0; font-weight: 700; white-space: nowrap; }
+    table tr:nth-child(even) td { background: #fafafa; }
+    p { margin-bottom: 10px; font-size: 0.88rem; }
+    ul, ol { margin-bottom: 10px; padding-left: 22px; font-size: 0.88rem; }
+    ul li, ol li { margin-bottom: 3px; }
+    .highlight-box { background: #f7f7f7; border: 1px solid #ddd; padding: 14px 18px; margin: 12px 0 20px; font-size: 0.85rem; }
+    .highlight-box strong { display: block; margin-bottom: 6px; }
+    .info-box { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 10px 16px; margin: 12px 0 20px; font-size: 0.82rem; color: #1e3a5f; }
+    .note-box { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 10px 16px; margin: 12px 0 20px; font-size: 0.82rem; color: #78350f; }
+    .badge { display: inline-block; padding: 2px 10px; font-size: 0.72rem; font-weight: 700; border-radius: 999px; letter-spacing: 0.03em; }
+    .badge-info    { background: #d1ecf1; color: #0c5460; }
+    .badge-pending { background: #e2e3e5; color: #383d41; }
+    .badge-ok      { background: #d4edda; color: #155724; }
+    .badge-warn    { background: #fff3cd; color: #856404; }
+    .badge-danger  { background: #f8d7da; color: #721c24; }
+    .action-list { list-style: none; padding-left: 0; }
+    .action-list li { padding: 10px 14px; margin-bottom: 8px; background: #fafafa; border: 1px solid #ddd; font-size: 0.85rem; }
+    .action-list li .who { display: inline-block; font-weight: 700; font-size: 0.78rem; background: #1a1a1a; color: #fff; padding: 1px 8px; border-radius: 999px; margin-right: 6px; }
+    .report-footer { border-top: 1px solid #999; margin-top: 48px; padding-top: 16px; font-size: 0.78rem; color: #777; }
+
+    /* ケーススタディ固有スタイル */
+    .case-card { border: 1px solid #ddd; margin-bottom: 32px; }
+    .case-card .case-header { background: #f7f7f7; border-bottom: 1px solid #ddd; padding: 14px 18px; display: flex; align-items: flex-start; gap: 12px; }
+    .case-card .case-num { font-size: 1.5rem; font-weight: 900; color: #bbb; line-height: 1; flex-shrink: 0; margin-top: 2px; }
+    .case-card .case-title { font-size: 0.95rem; font-weight: 700; line-height: 1.4; }
+    .case-card .case-meta { font-size: 0.75rem; color: #777; margin-top: 4px; }
+    .case-card .case-body { padding: 0; }
+    .case-section { padding: 12px 18px; border-bottom: 1px solid #eee; font-size: 0.83rem; }
+    .case-section:last-child { border-bottom: none; }
+    .case-section .label {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; color: #fff;
+      background: #555; display: inline-block; padding: 1px 8px; border-radius: 3px; margin-bottom: 6px;
+    }
+    .case-section .label.situation { background: #6c757d; }
+    .case-section .label.decision  { background: #0d6efd; }
+    .case-section .label.rationale { background: #6f42c1; }
+    .case-section .label.rule      { background: #198754; }
+    .quote { background: #f8f9fa; border-left: 3px solid #ced4da; padding: 6px 12px; margin: 8px 0; color: #555; font-style: italic; font-size: 0.82rem; }
+    .rule-box { background: #f0fdf4; border: 1px solid #86efac; padding: 10px 14px; margin-top: 10px; font-size: 0.83rem; }
+    .rule-box strong { color: #166534; }
+
+    .category-intro { background: #1a1a1a; color: #fff; padding: 10px 18px; margin-bottom: 24px; font-size: 0.85rem; font-weight: 600; }
+
+    @media (max-width: 640px) {
+      #main { padding: 24px 20px 60px; }
+      .report-header h1 { font-size: 1.3rem; }
+      h2.section-title { font-size: 1.05rem; }
+      table { font-size: 0.78rem; }
+      #sticky-nav { padding: 10px 12px; gap: 6px; }
+      .pill { padding: 4px 12px; font-size: 0.72rem; }
+    }
+    @media print {
+      #sticky-nav { display: none; }
+      #main { padding: 0; max-width: 100%; }
+      .case-card { page-break-inside: avoid; }
+      .highlight-box, .note-box, .info-box, .rule-box {
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      }
+      table th { background: #f0f0f0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+
+<nav id="sticky-nav">
+  <span class="nav-label">SECTIONS</span>
+  <a class="pill" href="#overview">概要</a>
+  <a class="pill" href="#ats">ATS・ツール運用</a>
+  <a class="pill" href="#candidate">候補者対応</a>
+  <a class="pill" href="#scope">担当範囲・引継ぎ</a>
+  <a class="pill" href="#process">プロセス設計</a>
+  <a class="pill" href="#rules">判断ルール一覧</a>
+</nav>
+
+<div id="main">
+
+  <header class="report-header">
+    <h1>RPO事業部 暗黙知ケーススタディ集</h1>
+    <p class="subtitle">
+      Slackから掘り起こした属人的判断の言語化 — 2026-04-21
+      <span class="badge badge-info">ナレッジ化</span>
+    </p>
+    <div class="summary-box">
+      <h3>このドキュメントについて</h3>
+      <ul>
+        <li>RPO関連Slackチャンネル（13ch）の直近90日・1,105件のメッセージを横断分析</li>
+        <li>「判断・方針・ルール・例外・どうする」等のキーワードで絞り込んだ<strong>197件の判断スレッド</strong>から、代表的な14ケースを抽出</li>
+        <li>各ケースを「状況 → 判断内容 → 判断根拠 → 汎用ルール」の構造で言語化</li>
+        <li>対象チャンネル: cl/ex_rpo_i-ne, cl_rpo_テスティー, cl_rpo_anique, cl_rpo_cciforward, cl_rpo_ten-experience, cl_rpo_luaaz, pj_rpo事業部 他</li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- 概要 -->
+  <h2 class="section-title" id="overview">発見された暗黙知のカテゴリー</h2>
+
+  <p>Slackに埋もれた判断を分析したところ、<strong>4つのカテゴリー</strong>に分類できました。特に「候補者対応の優先度」と「ATS・ツールの運用判断」は複数のクライアントをまたいで類似した判断が繰り返されており、ルール化の効果が高い領域です。</p>
+
+  <table>
+    <tr><th>カテゴリー</th><th>ケース数</th><th>主な判断内容</th><th>属人化リスク</th></tr>
+    <tr>
+      <td>① ATS・ツール運用</td>
+      <td>3件</td>
+      <td>複数ATS追加時の方針、通知ツールの代替手段、アカウント問題の処理</td>
+      <td><span class="badge badge-danger">高</span></td>
+    </tr>
+    <tr>
+      <td>② 候補者対応の優先度</td>
+      <td>5件</td>
+      <td>承諾期限と面接調整の優先度、レジュメ提出の一律化可否、放置時のSLA</td>
+      <td><span class="badge badge-danger">高</span></td>
+    </tr>
+    <tr>
+      <td>③ 担当範囲・引継ぎ</td>
+      <td>3件</td>
+      <td>面接官変更時の扱い、担当外業務の判断、引継ぎ時のアカウント移行</td>
+      <td><span class="badge badge-warn">中</span></td>
+    </tr>
+    <tr>
+      <td>④ プロセス設計・運用</td>
+      <td>3件</td>
+      <td>テスト運用延長の基準、定例MTGの運営設計、書類選考フロー変更の移行</td>
+      <td><span class="badge badge-warn">中</span></td>
+    </tr>
+  </table>
+
+  <div class="note-box">
+    このドキュメントに記載された「汎用ルール」は、Slackのやり取りから帰納的に導出したものです。正式なルールとして採用する場合は、チームで内容を確認・合意した上でオペレーションマニュアルに転記してください。
+  </div>
+
+  <!-- カテゴリー1: ATS・ツール運用 -->
+  <h2 class="section-title" id="ats">① ATS・ツール運用の判断</h2>
+
+  <div class="category-intro">クライアント指定のATSが変わったり、通知が届かないなど、ツール起因の判断が多い領域。対応方法が担当者によって異なっていた。</div>
+
+  <!-- CASE 1 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">01</div>
+      <div>
+        <div class="case-title">パーソルが新たにdoda Connect経由の推薦スキームを提示してきた — どちらのATSで受け付けるか</div>
+        <div class="case-meta"><span class="badge badge-info">cl_rpo_テスティー</span> &nbsp; 2026-03 &nbsp;|&nbsp; 返信9件</div>
+      </div>
+    </div>
+    <div class="case-body">
+      <div class="case-section">
+        <div class="label situation">状況</div>
+        <p>パーソルとはHERP連携で推薦を受け付けていたが、先方からdoda Connect（媒体専用ATS）経由の推薦・スクリーニングスキームが提示された。HERP連携と並行して新しいATSを追加するか、切り替えるかの判断が必要になった。</p>
+        <div class="quote">「パーソルからの応募対応（通常紹介・紹介プラス）の件で…doda Connectを介した推薦・スクリーニングのスキームが提示されました」</div>
+      </div>
+      <div class="case-section">
+        <div class="label decision">判断した内容</div>
+        <p>社内の意向を23日までに固める期限を設定し、他のクライアントでも同様の事象が起きているかを横断確認した上で、ATS追加の可否を判断することにした。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rationale">判断根拠</div>
+        <p>ATS運用はクライアント全体の統一性に影響する。個別対応が先行すると後から統一ルールを作りにくくなるため、横断的な確認を先に行った。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rule">汎用化できるルール</div>
+        <div class="rule-box">
+          <strong>エージェントから新ATSを追加提案された場合は、まず他クライアントでの実績・社内方針を確認してから回答する。個別に先行して受け入れない。</strong><br>
+          期限がある場合は、社内意向確認の期日を先に押さえてからエージェントへ返答する。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASE 2 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">02</div>
+      <div>
+        <div class="case-title">HRMOSのメンション通知がクライアント社内に届かない — 連絡手段をどう切り替えるか</div>
+        <div class="case-meta"><span class="badge badge-info">ex_rpo_i-ne</span> &nbsp; 2026-03 &nbsp;|&nbsp; 返信7件</div>
+      </div>
+    </div>
+    <div class="case-body">
+      <div class="case-section">
+        <div class="label situation">状況</div>
+        <p>HRMOS上でクライアント社内の採用担当者にメンションしても、Slackの通知設定をしていない人が多く、実質的にメールもSlackも見られていない状態が続いていた。日程調整の依頼が相手に届かず、候補者対応が遅延する事態が発生した。</p>
+        <div class="quote">「HRMOS上でのメンションをしても事業部の人はほぼ見てない可能性かなり高いです。Slackで通知設定していない場合が大半。してない場合デフォルトでメールは飛ぶがメール見る文化が弊社だいぶ弱い＝流れる」</div>
+      </div>
+      <div class="case-section">
+        <div class="label decision">判断した内容</div>
+        <p>日程調整等の相談が必要な場合は、HRMOSではなく<strong>該当部門のSlackチャンネルでメンション通知</strong>するよう運用を切り替えた。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rationale">判断根拠</div>
+        <p>ツールの機能より相手が実際に見る手段を優先。メール文化のない組織にはSlack直接通知が最も確実。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rule">汎用化できるルール</div>
+        <div class="rule-box">
+          <strong>クライアント社内への依頼・確認は、ATSのメンション機能ではなく、クライアントの担当部門Slackチャンネルに直接投稿する。</strong><br>
+          オンボーディング時に「通知を確実に受け取れる連絡手段」をヒアリングしてドキュメント化すること。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASE 3 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">03</div>
+      <div>
+        <div class="case-title">MeatusアカウントのHERPにten-experienceの求人が来た — どちらのアカウントで処理するか</div>
+        <div class="case-meta"><span class="badge badge-info">cl_rpo_ten-experience</span> &nbsp; 2026-04 &nbsp;|&nbsp; 返信10件</div>
+      </div>
+    </div>
+    <div class="case-body">
+      <div class="case-section">
+        <div class="label situation">状況</div>
+        <p>BPIOが複数クライアントで同一のHERPアカウントを使い回している状況で、エージェントからの推薦がMeatusアカウント宛にten-experience求人への応募として届いた。担当者が「自分が書類選考を進めてよいか？」と確認する事態が発生。</p>
+        <div class="quote">「Meatusの方で使っているHERPアカウントの方で、エージェントからの推薦がありました。こちら私が書類選考を進めて大丈夫でしょうか？以前の引き継ぎ債は、HERPは別のアカウントで対応していた気がしたので」</div>
+      </div>
+      <div class="case-section">
+        <div class="label decision">判断した内容</div>
+        <p>「同じ求人がこちらで作ったものとTenアカウントで作ったものの2つある状態」を確認し、アカウント統一と求人の一本化を優先した。担当者がクロスでチェックする体制を設けた。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rationale">判断根拠</div>
+        <p>アカウントが混在すると書類選考の重複や見落としが発生する。クライアントごとにアカウントを分離するのが原則。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rule">汎用化できるルール</div>
+        <div class="rule-box">
+          <strong>HERPアカウントはクライアントごとに分離して管理する。複数クライアントの混在が発生した場合は即座に上長に報告し、求人・応募を正しいアカウントに移行する。</strong><br>
+          引継ぎ時にはアカウント管理表を必ず更新・確認する。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- カテゴリー2: 候補者対応 -->
+  <h2 class="section-title" id="candidate">② 候補者対応の優先度判断</h2>
+
+  <div class="category-intro">候補者の承諾期限・面接官の調整・日程放置など、タイムクリティカルな判断が多い。対応スピードの基準が人によって異なっていた。</div>
+
+  <!-- CASE 4 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">04</div>
+      <div>
+        <div class="case-title">承諾期限が22日に迫った候補者の面接を最優先で組む判断</div>
+        <div class="case-meta"><span class="badge badge-info">ex_rpo_i-ne</span> &nbsp; 2026-04 &nbsp;|&nbsp; 返信15件</div>
+      </div>
+    </div>
+    <div class="case-body">
+      <div class="case-section">
+        <div class="label situation">状況</div>
+        <p>候補者の他社内定承諾期限が4月22日に迫っていた。面接を4月21日午前中までに完了させなければ、承諾期限を守れなくなる状況。担当者が他の書類選考業務と並行していた。</p>
+        <div class="quote">「本人22日承諾期限なので、最低でも22日午前中までに面接完了する必要があります。そのため以下方針に決めました。※こちら、私の担当範囲内ではどの作業よりも優先してください 他の書類選考の結果が少々遅れてもよいので、日程調整等も当日中にやり取り完了ください。」</div>
+      </div>
+      <div class="case-section">
+        <div class="label decision">判断した内容</div>
+        <p>書類選考の遅延を許容してでも当該候補者の面接日程調整を最優先とした。同日中にやり取りを完了できない場合は担当者自身が介入すると明示した。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rationale">判断根拠</div>
+        <p>承諾期限を逃すと内定辞退確定。書類選考の遅れは後から取り戻せるが、承諾期限超過は取り返しがつかない。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rule">汎用化できるルール</div>
+        <div class="rule-box">
+          <strong>候補者の他社内定承諾期限まで3営業日以内の場合は、他の全業務に優先して面接日程調整を完了させる。当日中対応が難しければ即座に上長・担当者に連絡して引き継ぐ。</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASE 5 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">05</div>
+      <div>
+        <div class="case-title">ビズリーチ経由の応募者にレジュメ提出を一律に求めるべきか</div>
+        <div class="case-meta"><span class="badge badge-info">ex_rpo_i-ne</span> &nbsp; 2026-03 &nbsp;|&nbsp; 返信8件</div>
+      </div>
+    </div>
+    <div class="case-body">
+      <div class="case-section">
+        <div class="label situation">状況</div>
+        <p>引継ぎ後の担当者が「ビズリーチ経由の応募者には全員一律でレジュメ提出依頼をしている」運用に気づいた。前任者はそうしていなかった可能性があり、一律化の是非について確認が必要になった。</p>
+        <div class="quote">「ビズリーチ経由の方は全員一律レジュメ提出してください、のご案内をいただいている？と最近お見受けしてますが、不要と考えてます。一律の運用にするために、そうしてます、であれば、どうしても、レジュメ提出までのタイムラグが発生してしまうので、本当にそれがいいのかは、正直悩ましいです」</div>
+      </div>
+      <div class="case-section">
+        <div class="label decision">判断した内容</div>
+        <p>ビズリーチはプロフィールが詳細なため、レジュメ提出を一律に求めることで発生するタイムラグの方が問題。プロフィールで判断できる場合は省略し、必要な場合のみ追加依頼する方針を確認・統一した。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rationale">判断根拠</div>
+        <p>媒体ごとにプロフィールの充実度が異なる。一律対応はオペレーション効率を下げ、候補者体験も悪化させる。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rule">汎用化できるルール</div>
+        <div class="rule-box">
+          <strong>ビズリーチ経由の応募者へのレジュメ提出依頼は原則不要。プロフィール情報で判断できない場合のみ追加依頼する。他媒体は媒体の特性に応じて判断する。</strong><br>
+          引継ぎ時にはこの方針を必ず口頭＋文書で共有する。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASE 6 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">06</div>
+      <div>
+        <div class="case-title">面接官の予定が合わない候補者 — 代替面接官を立てる判断</div>
+        <div class="case-meta"><span class="badge badge-info">cl_rpo_cciforward</span> &nbsp; 2026-03 &nbsp;|&nbsp; 返信8件</div>
+      </div>
+    </div>
+    <div class="case-body">
+      <div class="case-section">
+        <div class="label situation">状況</div>
+        <p>候補者がピンポイントで面接希望日を提示してきたが、指定された面接官（住友さん）のスケジュールが合わない。別の面接官（巧さん）なら可能な日程がある。</p>
+        <div class="quote">「再度候補日をいただいたのが添付の日程になりますが、住友さんのご予定が合わない状況です。ただ巧さんであれば、26日(木)18:30～が空いているため、可能であれば巧さんにお願いできればと考えたのですが、いかがでしょうか？もし住友さんの方が良い場合は、改めて候補日をいただくよう対応します！」</div>
+      </div>
+      <div class="case-section">
+        <div class="label decision">判断した内容</div>
+        <p>面接官を代替者（巧さん）に変更する方向で上長承認を取り、候補者に調整を進めた。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rationale">判断根拠</div>
+        <p>候補者の希望日を優先することで選考スピードを維持。面接官の変更は事前に上長に確認してから実施。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rule">汎用化できるルール</div>
+        <div class="rule-box">
+          <strong>面接官のスケジュールが合わない場合、①代替面接官の提案 → ②上長承認 → ③候補者への日程確定 の順で処理する。候補者を待たせて再調整を求める前に、まず代替案を探す。</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASE 7 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">07</div>
+      <div>
+        <div class="case-title">候補者の日程調整が放置されていた — 対応期限のSLA</div>
+        <div class="case-meta"><span class="badge badge-info">ex_rpo_i-ne</span> &nbsp; 2026-03 &nbsp;|&nbsp; 返信6件</div>
+      </div>
+    </div>
+    <div class="case-body">
+      <div class="case-section">
+        <div class="label situation">状況</div>
+        <p>候補者が午前9:51に翌日13:00の面接希望を提示。人事共通アカウントが12:16に操作記録があるが、15:53時点で日程が確定していなかった。翌日の面接が確定できない状態が続いていた。</p>
+        <div class="quote">「急かしてすみませんが明日の日程なので、16時半までに御社で対応出来ない場合はお知らせ欲しいです！」</div>
+      </div>
+      <div class="case-section">
+        <div class="label decision">判断した内容</div>
+        <p>16:30を対応期限として設定し、それまでに確定できない場合は連絡するよう依頼。その後すぐに対応が完了した。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rationale">判断根拠</div>
+        <p>翌日の面接であれば当日中（遅くとも16:30）に確定しなければ候補者体験が著しく悪化する。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rule">汎用化できるルール</div>
+        <div class="rule-box">
+          <strong>翌営業日の面接については当日16:30までに日程確定する。確定できない場合は候補者とクライアントの両方に16:30時点で状況を連絡し、翌日以降への変更可否を確認する。</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASE 8 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">08</div>
+      <div>
+        <div class="case-title">インタビューアサイン前に面接候補日が来た — 先に面接を進めてよいか</div>
+        <div class="case-meta"><span class="badge badge-info">cl_rpo_cciforward</span> &nbsp; 2026-03 &nbsp;|&nbsp; 返信13件</div>
+      </div>
+    </div>
+    <div class="case-body">
+      <div class="case-section">
+        <div class="label situation">状況</div>
+        <p>ミドルコンサル（DXコンサル）ポジションで、インタビュー（面接官へのヒアリング）のアサインが完了する前に候補者から面接候補日が届いた。来週金曜までという期限があり、インタビューを待っていると間に合わない。</p>
+        <div class="quote">「こちら、すでに日程調整依頼が来ておりインタビューを待たずに2・3件は面接しないとかなと思います。いったんはDXコンサルの面接してもらっているBPIO人事に頼んでみるとかしかないかなと思いますがどうですか？」</div>
+      </div>
+      <div class="case-section">
+        <div class="label decision">判断した内容</div>
+        <p>インタビュー完了を待たずに、既存で面接実績のあるBPIO人事担当者を暫定面接官として面接を先行させた。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rationale">判断根拠</div>
+        <p>面接官アサインより候補者対応のタイムラインを優先。既知の担当者で暫定対応し、後から正式なインタビューを実施する。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rule">汎用化できるルール</div>
+        <div class="rule-box">
+          <strong>インタビューアサイン待ちで候補者対応が止まりそうな場合は、既存で同系統のポジションを面接した実績のある担当者を暫定面接官として先行させる。ただし上長に事前承認を取ること。</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- カテゴリー3: 担当範囲・引継ぎ -->
+  <h2 class="section-title" id="scope">③ 担当範囲・引継ぎの判断</h2>
+
+  <div class="category-intro">担当者交代・引継ぎ・担当外業務への対応など、「誰がどこまでやるか」が曖昧になりやすい場面の判断。</div>
+
+  <!-- CASE 9 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">09</div>
+      <div>
+        <div class="case-title">面接官担当者が変更になった — 既に設定済みの面接はどうするか</div>
+        <div class="case-meta"><span class="badge badge-info">cl_rpo_anique</span> &nbsp; 2026-03 &nbsp;|&nbsp; 返信11件</div>
+      </div>
+    </div>
+    <div class="case-body">
+      <div class="case-section">
+        <div class="label situation">状況</div>
+        <p>「海外営業」ポジションの面接担当者がクライアント側の都合で笠井様から変更になった。すでに①一次面接予定（飯田様で設定・承諾済み）②最終面接予定（笠井様で登録済み）の2名の候補者がいる状態。</p>
+        <div class="quote">「①XIONG JIEさん：一次面接予定 飯田様で面接設定、承諾までいただいておりますが変更が必要か ②Lin Pei Yaoさん：最終面接予定 最終面接担当者が笠井様で登録しているがそのままで大丈夫か」</div>
+      </div>
+      <div class="case-section">
+        <div class="label decision">判断した内容</div>
+        <p>変更後の担当者（ゆうなさん）に各候補者の対応状況を確認し、面接官を変更するか継続するかを担当者側で判断してもらった。承諾済みの①は変更が難しいため、状況に応じて個別対応とした。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rationale">判断根拠</div>
+        <p>承諾済みの面接は候補者へのリスケが発生するため、変更コストが高い。変更前の担当者のアポは原則維持し、未確定分のみ新担当者に変更する。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rule">汎用化できるルール</div>
+        <div class="rule-box">
+          <strong>面接官変更が発生した場合、①承諾済みの面接は変更しない（原則維持）②未確定・調整中の面接は新担当者に切り替える③最終確認は新担当者経由でクライアントへ行う。</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASE 10 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">10</div>
+      <div>
+        <div class="case-title">社外トークルームに入っていない担当者 — どこまで業務を進めるか</div>
+        <div class="case-meta"><span class="badge badge-info">cl_rpo_anique</span> &nbsp; 2026-03 &nbsp;|&nbsp; 返信9件</div>
+      </div>
+    </div>
+    <div class="case-body">
+      <div class="case-section">
+        <div class="label situation">状況</div>
+        <p>現在対応中の候補者が面接希望日を提示してきたが、対応した担当者がAniqueとのクライアントトークルームに入っていない。面接官スケジュールは確認できる状況で、日程は確定できる。しかし社外向けの連絡ができない。</p>
+        <div class="quote">「私が社外用のAniqueトークルームにはいっておらず どこまでフローを実施するかご教示いただきたいです！面接官のスケジュールは確認し、日程は確定できる状況です！」</div>
+      </div>
+      <div class="case-section">
+        <div class="label decision">判断した内容</div>
+        <p>トークルームに入っている担当者（ゆうなさん）に確認を依頼し、翌営業日対応で問題ないと判断。担当外の社外連絡は独断では行わない。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rationale">判断根拠</div>
+        <p>社外向けコミュニケーションは担当者を通じて行うべき。独断での社外連絡は責任の所在が不明確になる。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rule">汎用化できるルール</div>
+        <div class="rule-box">
+          <strong>社外トークルームに入っていない場合、内部作業（スケジュール確認・調整）は進めてよいが、社外への連絡はトークルーム参加者に依頼する。緊急時は上長経由でトークルームへの追加を依頼する。</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASE 11 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">11</div>
+      <div>
+        <div class="case-title">引継ぎ時のジョブカンアカウント変更 と doda定例MTGの継続判断</div>
+        <div class="case-meta"><span class="badge badge-info">cl_rpo_anique</span> &nbsp; 2026-04 &nbsp;|&nbsp; 返信11件</div>
+      </div>
+    </div>
+    <div class="case-body">
+      <div class="case-section">
+        <div class="label situation">状況</div>
+        <p>担当者の引継ぎが発生。ジョブカン（新着メール通知が登録アドレス宛に届く）の登録アドレスを後任者のアドレスに変更するか、またdodaとの定例MTGに後任者も継続参加するかの判断が必要になった。</p>
+        <div class="quote">「①ジョブカンについて 私のアカウントのアドレスを満川さんのアドレスに変更しても問題ないでしょうか？②dodaとの定例MTGについて 満川さんと会話をして、継続での参加をご希望いただきました」</div>
+      </div>
+      <div class="case-section">
+        <div class="label decision">判断した内容</div>
+        <p>①ジョブカンは後任のアドレスへ変更（氏名変更は後任挨拶完了後）。②doda定例MTGは後任者の参加を継続とした。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rationale">判断根拠</div>
+        <p>メール通知が前任者宛のままでは見落としが発生する。MTGは引継ぎ完了まで並走するのが理想だが、後任者の参加継続でOK。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rule">汎用化できるルール</div>
+        <div class="rule-box">
+          <strong>引継ぎ時のチェックリスト（必須）：①各ツールの登録メールアドレスを後任者に変更②定期MTGへの後任者参加を設定③氏名変更は後任挨拶完了後④ATSアカウント権限の移行を上長に確認</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- カテゴリー4: プロセス設計 -->
+  <h2 class="section-title" id="process">④ プロセス設計・運用判断</h2>
+
+  <div class="category-intro">テスト運用・定例MTGの運営・書類選考フローの変更など、仕組みの設計や変更に関わる判断。</div>
+
+  <!-- CASE 12 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">12</div>
+      <div>
+        <div class="case-title">テスト運用の期間を延長するか — 延長判断の基準</div>
+        <div class="case-meta"><span class="badge badge-info">ex_rpo_i-ne</span> &nbsp; 2026-02-03 &nbsp;|&nbsp; 返信11件</div>
+      </div>
+    </div>
+    <div class="case-body">
+      <div class="case-section">
+        <div class="label situation">状況</div>
+        <p>新部署でのテスト運用を1週間実施したが、祝日の兼ね合いで実質2日間のみとなり、候補者への日程調整等を1件も実施できていない状態でテスト期間が終了しようとしていた。</p>
+        <div class="quote">「1週間『テスト期間』を延長させていただきたく存じます。理由といたしましては、祝日等の兼ね合いで実質2日のみの運用となったこともあり、候補者対応（日程調整等）の具体的な連携を１名も実施できていないためです」</div>
+      </div>
+      <div class="case-section">
+        <div class="label decision">判断した内容</div>
+        <p>テスト期間を1週間延長した。延長の条件として「候補者対応の実績が少なくとも1件発生すること」を目安とした。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rationale">判断根拠</div>
+        <p>テストの目的は実際の運用フローを検証すること。候補者対応の実績がゼロでは検証できない。カレンダーの日数ではなく「実際の業務処理件数」で完了を判断する。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rule">汎用化できるルール</div>
+        <div class="rule-box">
+          <strong>テスト運用の完了条件は「期間の経過」ではなく「実際の候補者対応を最低1件処理したこと」とする。祝日・稼働率低下で実績が出ない場合は期間延長を判断する。</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASE 13 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">13</div>
+      <div>
+        <div class="case-title">書類選考フローの社内ルール変更 — 移行期間の処理方法</div>
+        <div class="case-meta"><span class="badge badge-info">cl_rpo_i-ne</span> &nbsp; 2026-03 &nbsp;|&nbsp; 返信8件</div>
+      </div>
+    </div>
+    <div class="case-body">
+      <div class="case-section">
+        <div class="label situation">状況</div>
+        <p>書類選考フローが社内で変更になり、新規応募への書類送付依頼と書類確認依頼の手順が変わった。変更後のフローでどのようにラベルをつけ、どこまでを誰が担当するかが担当者によって認識が異なっていた。</p>
+        <div class="quote">「社内フロー変更に伴う対応事項について、整理させていただきたいです。先方へ書類確認依頼について、どのように行うのか・ラベルは●、のほかに何かつけるか ご教示いただきたいです。」</div>
+      </div>
+      <div class="case-section">
+        <div class="label decision">判断した内容</div>
+        <p>フロー変更は全担当者に即座に文書で共有し、ラベルの種類・付け方・担当範囲を明文化した。フロー変更を口頭だけで伝えず、Slackで確認可能な状態を残した。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rationale">判断根拠</div>
+        <p>口頭伝達だけでは引継ぎ時の情報断絶が起きる。特に複数担当者がいる場合、認識の差が選考品質のばらつきに直結する。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rule">汎用化できるルール</div>
+        <div class="rule-box">
+          <strong>書類選考フロー・ラベルルールの変更は必ずSlack（または共有ドキュメント）に記録し、全担当者が確認できる状態にする。口頭のみの共有は禁止。変更確認のスタンプ等でリアクションを必須とする。</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASE 14 -->
+  <div class="case-card">
+    <div class="case-header">
+      <div class="case-num">14</div>
+      <div>
+        <div class="case-title">定例MTGのファシリ・アジェンダ設計をどちらが担うか</div>
+        <div class="case-meta"><span class="badge badge-info">cl_rpo_テスティー</span> &nbsp; 2026-03 &nbsp;|&nbsp; 返信9件</div>
+      </div>
+    </div>
+    <div class="case-body">
+      <div class="case-section">
+        <div class="label situation">状況</div>
+        <p>クライアントとの定例MTGがGoogle Docで議事録を管理しており、アジェンダの事前共有も行われていなかった。ファシリがクライアント側主導で進んでいたため、会議の密度が薄い状態だった。</p>
+        <div class="quote">「アジェンダは①前回の定例からの積み残し②前回の定例からの進捗報告③今後の対策など、定例をやっている意味が見出せるように。そういう意味で、ファシリはこっちでやりたい。受注からの時期にもよるが、定例はできれば30分で。」</div>
+      </div>
+      <div class="case-section">
+        <div class="label decision">判断した内容</div>
+        <p>BPIO側がファシリを担当し、Notionで議事録を事前に公開する形式に変更した。アジェンダは「積み残し・進捗・今後の対策」の3本柱に統一し、30分で完結する設計にした。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rationale">判断根拠</div>
+        <p>RPOはクライアントに伴走するサービス。BPIO側がファシリを持つことで、会議のアウトプット品質とスピードをコントロールできる。</p>
+      </div>
+      <div class="case-section">
+        <div class="label rule">汎用化できるルール</div>
+        <div class="rule-box">
+          <strong>クライアントとの定例MTGはBPIO側がファシリを担当し、アジェンダを前日までにNotionで共有する。構成は①前回積み残し②進捗報告③今後の対策の3本柱。目標は30分以内。</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 判断ルール一覧 -->
+  <h2 class="section-title" id="rules">判断ルール一覧（まとめ）</h2>
+
+  <p>このドキュメントで言語化した14のケースから導出された汎用ルールの一覧です。オペレーションマニュアルへの転記・チェックリスト化を推奨します。</p>
+
+  <table>
+    <tr><th>#</th><th>カテゴリー</th><th>ルール（要約）</th><th>優先度</th></tr>
+    <tr>
+      <td>1</td>
+      <td>ATS・ツール</td>
+      <td>新ATSの追加提案は社内方針を確認してから回答。先行受け入れ禁止</td>
+      <td><span class="badge badge-danger">高</span></td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>ATS・ツール</td>
+      <td>クライアント社内への連絡はATSメンションではなくSlackチャンネル直接投稿</td>
+      <td><span class="badge badge-danger">高</span></td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>ATS・ツール</td>
+      <td>HERPアカウントはクライアントごとに分離。混在時は即報告・移行</td>
+      <td><span class="badge badge-danger">高</span></td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>候補者対応</td>
+      <td>承諾期限3営業日以内は全業務に優先して面接日程確定。完了不可なら即上長連絡</td>
+      <td><span class="badge badge-danger">高</span></td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>候補者対応</td>
+      <td>ビズリーチ経由はレジュメ提出原則不要。プロフィール不足時のみ追加依頼</td>
+      <td><span class="badge badge-warn">中</span></td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>候補者対応</td>
+      <td>面接官スケジュール不一致時は①代替案提案→②上長承認→③日程確定の順で処理</td>
+      <td><span class="badge badge-danger">高</span></td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>候補者対応</td>
+      <td>翌日面接の日程確定は当日16:30がSLA。超えたら候補者・クライアント両方に連絡</td>
+      <td><span class="badge badge-danger">高</span></td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>候補者対応</td>
+      <td>インタビューアサイン待ちで候補者対応が止まりそうなら実績ある担当者を暫定面接官に（上長承認必須）</td>
+      <td><span class="badge badge-warn">中</span></td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td>引継ぎ</td>
+      <td>面接官変更：承諾済みは維持、未確定のみ新担当者に切替</td>
+      <td><span class="badge badge-warn">中</span></td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>引継ぎ</td>
+      <td>社外トークルーム未参加者は内部作業のみ。社外連絡はトークルーム参加者に依頼</td>
+      <td><span class="badge badge-warn">中</span></td>
+    </tr>
+    <tr>
+      <td>11</td>
+      <td>引継ぎ</td>
+      <td>引継ぎ時チェックリスト：ツール登録アドレス変更・MTG参加設定・ATSアカウント権限移行</td>
+      <td><span class="badge badge-danger">高</span></td>
+    </tr>
+    <tr>
+      <td>12</td>
+      <td>プロセス</td>
+      <td>テスト運用の完了条件は期間ではなく「候補者対応実績1件以上」</td>
+      <td><span class="badge badge-warn">中</span></td>
+    </tr>
+    <tr>
+      <td>13</td>
+      <td>プロセス</td>
+      <td>選考フロー変更はSlack記録必須・スタンプで確認必須。口頭のみ禁止</td>
+      <td><span class="badge badge-danger">高</span></td>
+    </tr>
+    <tr>
+      <td>14</td>
+      <td>プロセス</td>
+      <td>定例MTGはBPIO側ファシリ。アジェンダは前日Notion共有。30分設計</td>
+      <td><span class="badge badge-warn">中</span></td>
+    </tr>
+  </table>
+
+  <div class="info-box">
+    <strong>次のステップ</strong>：このドキュメントに対して各担当者がコメント・修正を加え、実際の運用と齟齬がないか確認してください。確認済みのルールはオペレーションマニュアルへ転記し、新メンバーのオンボーディング資料として活用することを推奨します。
+  </div>
+
+  <ul class="action-list">
+    <li><span class="who">チーム全員</span> このドキュメントを読み、自分の実際の判断と異なる箇所にコメントを入れる（期限: 1週間以内）</li>
+    <li><span class="who">リーダー</span> コメントを踏まえて「優先度：高」の8ルールをオペレーションマニュアルへ転記する</li>
+    <li><span class="who">リーダー</span> 引継ぎチェックリスト（ルール11）をNotionまたはスプレッドシートに単独ドキュメントとして起こす</li>
+    <li><span class="who">全員</span> 今後、Slack上で新たな判断が発生した場合は「#rpo-暗黙知」チャンネルに投稿し、このドキュメントを随時更新する</li>
+  </ul>
+
+  <div class="report-footer">
+    RPO事業部 暗黙知ケーススタディ集 — スキャン対象: RPO関連13チャンネル / 直近90日 — Generated 2026-04-21 — BPIO co., Ltd.
+  </div>
+</div>
+
+<script>
+  const pills = document.querySelectorAll('.pill');
+  const sections = document.querySelectorAll('[id]');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        pills.forEach(p => p.classList.remove('active'));
+        const active = document.querySelector('.pill[href="#' + entry.target.id + '"]');
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-80px 0px -80% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
