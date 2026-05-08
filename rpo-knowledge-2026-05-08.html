@@ -5,12 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RPO業務 暗黙知ケーススタディ集 — 株式会社i-ne</title>
 <style>
-  /* BPIO Base */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic UI', sans-serif; font-size: 14px; color: #1a1a1a; background: #f5f5f5; line-height: 1.7; }
   a { color: #1a1a1a; }
 
-  /* Header */
   .report-header { background: #1a1a1a; color: #fff; padding: 40px 48px 32px; }
   .report-header .label { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: #aaa; margin-bottom: 8px; }
   .report-header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
@@ -20,34 +18,30 @@
   .summary-card .num { font-size: 2rem; font-weight: 700; color: #fff; line-height: 1; }
   .summary-card .unit { font-size: 0.72rem; color: #aaa; margin-top: 4px; }
 
-  /* Nav */
-  .nav { background: #fff; border-bottom: 1px solid #e0e0e0; padding: 0 48px; display: flex; gap: 0; position: sticky; top: 0; z-index: 100; }
-  .nav a { display: inline-block; padding: 14px 18px; font-size: 0.82rem; font-weight: 600; color: #666; text-decoration: none; border-bottom: 3px solid transparent; transition: all 0.15s; }
+  .nav { background: #fff; border-bottom: 1px solid #e0e0e0; padding: 0 48px; display: flex; gap: 0; position: sticky; top: 0; z-index: 100; overflow-x: auto; }
+  .nav a { display: inline-block; padding: 14px 16px; font-size: 0.82rem; font-weight: 600; color: #666; text-decoration: none; border-bottom: 3px solid transparent; transition: all 0.15s; white-space: nowrap; }
   .nav a:hover { color: #1a1a1a; border-bottom-color: #1a1a1a; }
 
-  /* Main */
   .main { max-width: 1100px; margin: 0 auto; padding: 40px 48px; }
   .section { margin-bottom: 56px; }
   .section-title { font-size: 1.1rem; font-weight: 700; border-left: 4px solid #1a1a1a; padding-left: 12px; margin-bottom: 20px; letter-spacing: -0.01em; }
   .section-subtitle { font-size: 0.78rem; color: #888; font-weight: 400; margin-left: 8px; }
 
-  /* Boxes */
   .info-box { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 12px 16px; margin: 8px 0; font-size: 0.85rem; color: #1e3a5f; }
   .highlight-box { background: #f9f9f9; border: 1px solid #e0e0e0; padding: 12px 16px; margin: 8px 0; font-size: 0.85rem; }
   .note-box { background: #fefce8; border-left: 4px solid #eab308; padding: 12px 16px; margin: 8px 0; font-size: 0.85rem; color: #713f12; }
 
-  /* Table */
   table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
   th { background: #1a1a1a; color: #fff; padding: 10px 14px; text-align: left; font-weight: 600; }
   td { padding: 10px 14px; border-bottom: 1px solid #e8e8e8; vertical-align: top; }
   tr:hover td { background: #fafafa; }
   .tag { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; }
-  .tag-ats { background: #dbeafe; color: #1e40af; }
+  .tag-ats     { background: #dbeafe; color: #1e40af; }
   .tag-candidate { background: #dcfce7; color: #166534; }
-  .tag-scope { background: #fef9c3; color: #713f12; }
+  .tag-scope   { background: #fef9c3; color: #713f12; }
   .tag-process { background: #fce7f3; color: #831843; }
+  .tag-agent   { background: #ede9fe; color: #4c1d95; }
 
-  /* Case Cards */
   .case-card { border: 1px solid #ddd; margin-bottom: 32px; padding: 0; background: #fff; }
   .case-header { background: #f0f0f0; border-bottom: 1px solid #ddd; padding: 10px 16px; font-size: 0.82rem; font-weight: 700; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
   .case-header .ch-badge { background: #1a1a1a; color: #fff; padding: 2px 10px; border-radius: 999px; font-size: 0.72rem; }
@@ -55,51 +49,45 @@
   .case-label { font-size: 0.72rem; font-weight: 700; color: #777; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; margin-top: 16px; }
   .case-label:first-child { margin-top: 0; }
   .rule-box { background: #f0fdf4; border-left: 4px solid #16a34a; padding: 10px 16px; margin: 8px 0; font-size: 0.85rem; color: #14532d; }
-  .quote { border-left: 3px solid #ccc; margin: 8px 0; padding: 4px 12px; font-size: 0.82rem; color: #555; font-style: italic; }
 
-  /* Category header */
   .category-intro { background: #fff; border: 1px solid #e0e0e0; padding: 14px 20px; margin-bottom: 24px; font-size: 0.85rem; color: #555; }
-
-  /* Index table anchor links */
   .idx-link { color: #2563eb; text-decoration: none; }
   .idx-link:hover { text-decoration: underline; }
 
-  /* Footer */
   footer { background: #1a1a1a; color: #888; text-align: center; padding: 20px; font-size: 0.78rem; }
 </style>
 </head>
 <body>
 
-<!-- Header -->
 <header class="report-header">
   <div class="label">RPO Knowledge Report</div>
   <h1>RPO業務 暗黙知ケーススタディ集</h1>
   <div class="subtitle">株式会社i-ne | スキャン期間：直近90日間 | 生成日：2026-05-08</div>
   <div class="summary-grid">
     <div class="summary-card">
-      <div class="num">2</div>
+      <div class="num">8</div>
       <div class="unit">スキャン対象チャンネル</div>
     </div>
     <div class="summary-card">
-      <div class="num">337</div>
+      <div class="num">527</div>
       <div class="unit">取得メッセージ数</div>
     </div>
     <div class="summary-card">
-      <div class="num">40</div>
+      <div class="num">50</div>
       <div class="unit">分析スレッド数</div>
     </div>
     <div class="summary-card">
-      <div class="num">12</div>
+      <div class="num">22</div>
       <div class="unit">ケーススタディ</div>
     </div>
   </div>
 </header>
 
-<!-- Nav -->
 <nav class="nav">
   <a href="#overview">概要</a>
   <a href="#ats">ATSツール</a>
   <a href="#candidate">候補者対応</a>
+  <a href="#agent">エージェント対応</a>
   <a href="#scope">スコープ・引き継ぎ</a>
   <a href="#process">プロセス設計</a>
   <a href="#index">索引</a>
@@ -110,509 +98,438 @@
   <!-- Section 1: Overview -->
   <section class="section" id="overview">
     <h2 class="section-title">スキャン概要</h2>
-
     <div class="highlight-box">
-      <strong>スキャン対象チャンネル</strong>
-      <table style="margin-top:10px;">
-        <thead>
-          <tr><th>チャンネル名</th><th>種別</th><th>取得メッセージ数</th></tr>
-        </thead>
+      <table style="margin-top:0;">
+        <thead><tr><th>チャンネル名</th><th>種別</th><th>メッセージ数</th></tr></thead>
         <tbody>
           <tr><td>cl_bpio_rpo_株式会社i-ne</td><td>社内向け</td><td>200件</td></tr>
-          <tr><td>ex_bpio_rpo_株式会社i-ne</td><td>クライアント外部</td><td>137件</td></tr>
+          <tr><td>ex_bpio_rpo_株式会社i-ne</td><td>クライアント外部</td><td>138件</td></tr>
+          <tr><td>proj-採用-2026-artemis知財</td><td>採用PJ</td><td>20件</td></tr>
+          <tr><td>proj-採用-2025-トゥヴェール</td><td>採用PJ</td><td>49件</td></tr>
+          <tr><td>proj-採用-2026-bw事業本部_広報室</td><td>採用PJ</td><td>25件</td></tr>
+          <tr><td>proj-採用-2026-dｍ本部</td><td>採用PJ</td><td>40件</td></tr>
+          <tr><td>proj-採用-2026-サプライチェーンマネジメント本部</td><td>採用PJ</td><td>29件</td></tr>
+          <tr><td>proj-採用-2026-営業本部</td><td>採用PJ</td><td>26件</td></tr>
         </tbody>
       </table>
     </div>
-
     <div class="info-box" style="margin-top:16px;">
-      <strong>本レポートについて</strong><br>
-      マニュアル・チケットに記録されず、Slackのやり取りのみで共有されてきた判断・ルール・例外対応を抽出し、再利用可能なケーススタディとして整理しました。
-      カテゴリは「ATSツール・システム操作」「候補者対応」「スコープ・引き継ぎ」「プロセス設計」の4区分です。
+      マニュアル・チケットに記録されず、Slackのやり取りのみで共有されてきた判断・ルール・例外対応を抽出し、再利用可能なケーススタディとして整理しました。カテゴリは「ATSツール」「候補者対応」「エージェント対応」「スコープ・引き継ぎ」「プロセス設計」の5区分です。
     </div>
   </section>
 
   <!-- Section 2: ATS Tools -->
   <section class="section" id="ats">
-    <h2 class="section-title">ATSツール・システム操作 <span class="section-subtitle">3件</span></h2>
-    <div class="category-intro">
-      HRMOSやZoomなどのツール運用で発生した設定ミス・権限問題・フロー変更の判断事例です。
-    </div>
+    <h2 class="section-title">ATSツール・システム操作 <span class="section-subtitle">4件</span></h2>
+    <div class="category-intro">HRMOSやZoomの設定ミス・権限問題・フロー変更の判断事例です。</div>
 
-    <!-- Case ATS-01 -->
     <div class="case-card" id="case-ats-01">
       <div class="case-header">
         <span class="ch-badge">ex_bpio_rpo_i-ne</span>
-        <span><span class="tag tag-ats">ATSツール</span></span>
+        <span class="tag tag-ats">ATSツール</span>
         <span style="color:#888;">2026年3月</span>
-        <span style="margin-left:auto; font-weight:400; font-size:0.75rem;">スレッド参加：村田・高橋・山科・山下</span>
       </div>
       <div class="case-body">
         <div class="case-label">状況</div>
-        <div class="info-box">
-          面接開始10分前に、ZOOMアドレスが「ホスト許可待ち」となり候補者が入室できない緊急事態が発生。担当面接官（村田さん）のZoomアカウントで待機室が有効になっていたため、ホスト側の許可なしに入室不可の状態になっていた。
-        </div>
-
+        <div class="info-box">面接開始10分前に、ZOOMアドレスが「ホスト許可待ち」となり候補者が入室できない緊急事態が発生。担当面接官（村田さん）のZoomアカウントで待機室が有効になっていたため、ホスト側の許可なしに入室不可の状態になっていた。</div>
         <div class="case-label">判断した内容</div>
-        <div class="highlight-box">
-          ①村田さんのZoomアカウントで待機室設定をOFFにした。<br>
-          ②すでに発行済みのURLについては設定が残るため、再発行が必要と判断。<br>
-          ③ホストは「終了」ではなく「退室」で面接を離脱することで、残参加者の接続を維持。
-        </div>
-
-        <div class="case-label">判断根拠</div>
-        <p>Zoomの待機室設定はアカウントレベルで有効化されており、既発行URLにも影響が残る。面接担当者が自分のZoomアカウントを使う場合、アカウント側の設定確認が必要なことを現場で初めて把握した。</p>
-
+        <div class="highlight-box">①村田さんのZoomアカウントで待機室設定をOFFにした。②発行済みURLには設定が残るため再発行が必要と判断。③ホストは「終了」ではなく「退室」で離脱することで残参加者の接続を維持。</div>
         <div class="case-label">汎用ルール</div>
-        <div class="rule-box">
-          <strong>【ZOOM設定確認ルール】</strong><br>
-          新規面接官がZoomホストとなる際は、事前に「待機室（Waiting Room）」設定がOFFになっているか確認する。発行済みURLは設定変更の影響が残るため、設定変更後は再発行が必要。ホストが退室する際は「ミーティングを終了」ではなく「ミーティングから退出」を使用する。
-        </div>
+        <div class="rule-box"><strong>【ZOOM設定確認ルール】</strong><br>新規面接官がZoomホストとなる際は、事前に「待機室（Waiting Room）」設定がOFFか確認する。設定変更後は既発行URLを再発行する。ホスト退出は「ミーティングから退出」を使用する。</div>
       </div>
     </div>
 
-    <!-- Case ATS-02 -->
     <div class="case-card" id="case-ats-02">
       <div class="case-header">
         <span class="ch-badge">ex_bpio_rpo_i-ne</span>
-        <span><span class="tag tag-ats">ATSツール</span></span>
+        <span class="tag tag-ats">ATSツール</span>
         <span style="color:#888;">2026年3月</span>
-        <span style="margin-left:auto; font-weight:400; font-size:0.75rem;">スレッド参加：高橋・山下・BPIOメンバー</span>
       </div>
       <div class="case-body">
         <div class="case-label">状況</div>
-        <div class="info-box">
-          SPI（適性検査）の結果をBPIO側で閲覧しようとしたが、アクセス権がなく確認不可。また、新たな面接官（藤木拓馬さん）をHRMOSに追加する必要が生じたが、クライアント側のHRMOS管理者への依頼フローが確立されていなかった。
-        </div>
-
+        <div class="info-box">SPI（適性検査）の結果をBPIO側で閲覧しようとしたが、アクセス権がなく確認不可。面接官（藤木拓馬さん）をHRMOSに追加する必要が生じたが、申請フローが確立されていなかった。</div>
         <div class="case-label">判断した内容</div>
-        <div class="highlight-box">
-          ①SPIの閲覧はBPIOでは不可のため、クライアント側（HRBPご担当）にID発行を個別依頼する。<br>
-          ②面接官追加はBOXの共有エクセルに記載した上でクライアントHRMOS管理者にアカウント発行を依頼する。
-        </div>
-
-        <div class="case-label">判断根拠</div>
-        <p>HRMOSはクライアント契約のため、管理権限がクライアント側にある。BPIOはオペレーターとしてアクセスは可能だが、SPI閲覧・アカウント発行の権限は付与されていない状態のまま運用が始まっていた。</p>
-
+        <div class="highlight-box">①SPIはBPIOでは閲覧不可のため、クライアント側HRBPにID発行を個別依頼する。②面接官追加はBOXのエクセルに記載した上でクライアントHRMOS管理者にアカウント発行を依頼する。</div>
         <div class="case-label">汎用ルール</div>
-        <div class="rule-box">
-          <strong>【HRMOSアカウント・権限ルール】</strong><br>
-          ①SPI閲覧：BPIOでは不可。クライアントHRBPに「SPI ID発行依頼」として個別依頼する。<br>
-          ②面接官追加：BOXのエクセルに氏名を記載し、クライアントHRMOS管理者にアカウント発行を依頼。稼働開始前に追加完了を確認する。
-        </div>
+        <div class="rule-box"><strong>【HRMOSアカウント・権限ルール】</strong><br>①SPI閲覧：BPIO不可。クライアントHRBPに「SPI ID発行依頼」として個別依頼。②面接官追加：BOXのエクセルに氏名を記載し、クライアントHRMOS管理者にアカウント発行を依頼。稼働前に完了確認。</div>
       </div>
     </div>
 
-    <!-- Case ATS-03 -->
     <div class="case-card" id="case-ats-03">
       <div class="case-header">
-        <span class="ch-badge">ex_bpio_rpo_i-ne</span>
-        <span><span class="tag tag-ats">ATSツール</span></span>
-        <span style="color:#888;">2026年3月</span>
-        <span style="margin-left:auto; font-weight:400; font-size:0.75rem;">スレッド参加：村田・山下・BPIOメンバー</span>
+        <span class="ch-badge">proj-採用-2026-dｍ本部</span>
+        <span class="tag tag-ats">ATSツール</span>
+        <span style="color:#888;">2026年4月</span>
       </div>
       <div class="case-body">
         <div class="case-label">状況</div>
-        <div class="info-box">
-          WantedlyやGreenからの応募者をHRMOSでどう処理するかが不明確で、チャンネルが違う担当者間で対応がバラバラになっていた。また、HRMOS連携前はSlack上で面接官に個別連絡していたが、フローを統一する方針を決める必要があった。
-        </div>
-
+        <div class="info-box">書類選考候補者のHRMOSリンクをクライアント担当者に送付したところ、「リンクを開くとエラーになる」と返答があり、担当者が書類を閲覧できない状態が続いた。</div>
         <div class="case-label">判断した内容</div>
-        <div class="highlight-box">
-          WantedlyとGreenからの応募は、基本的にHRMOSにて対応するフローに統一する（HRMOS完結）。
-          HRMOSとSlack連携を推奨し、今後は原則HRMOSで面接官に返事する流れとする。
-        </div>
-
-        <div class="case-label">判断根拠</div>
-        <p>複数チャンネルからの応募が同一ATS（HRMOS）に集約されることで、進捗管理の一元化・ダブル対応の防止・属人化の解消が期待できるとして、定例MTGで決定された。</p>
-
+        <div class="highlight-box">HRMOSのリンク共有設定を変更し、閲覧権限を付与し直した。候補者ごとに個別リンクを再発行して送付した。</div>
         <div class="case-label">汎用ルール</div>
-        <div class="rule-box">
-          <strong>【媒体別応募フローのルール】</strong><br>
-          WantedlyやGreenからの応募は、すべてHRMOS上で対応を完結させる。Slackへの直接連絡は補助手段として使い、一次応答・日程調整・合否通知はHRMOS上で実施する。
-        </div>
+        <div class="rule-box"><strong>【HRMOSリンク共有時の権限確認ルール】</strong><br>クライアント担当者に候補者リンクを送付する際は、事前に「組織外ユーザーに共有可能」な設定になっているか確認する。新たな担当者に初めて送る際は開けるか確認を取る。</div>
+      </div>
+    </div>
+
+    <div class="case-card" id="case-ats-04">
+      <div class="case-header">
+        <span class="ch-badge">ex_bpio_rpo_i-ne</span>
+        <span class="tag tag-ats">ATSツール</span>
+        <span style="color:#888;">2026年3月</span>
+      </div>
+      <div class="case-body">
+        <div class="case-label">状況</div>
+        <div class="info-box">WantedlyやGreenからの応募者をHRMOSでどう処理するかが不明確で、担当者間で対応がバラバラになっていた。</div>
+        <div class="case-label">判断した内容</div>
+        <div class="highlight-box">WantedlyとGreenからの応募は基本的にHRMOSにて対応するフローに統一（HRMOS完結）。HRMOSとSlack連携を推奨し、今後は原則HRMOSで面接官に返事する流れとする。</div>
+        <div class="case-label">汎用ルール</div>
+        <div class="rule-box"><strong>【媒体別応募フローのルール】</strong><br>WantedlyやGreenからの応募はすべてHRMOS上で対応を完結させる。Slackへの直接連絡は補助手段とし、一次応答・日程調整・合否通知はHRMOS上で実施する。</div>
       </div>
     </div>
   </section>
 
   <!-- Section 3: Candidate -->
   <section class="section" id="candidate">
-    <h2 class="section-title">候補者対応 <span class="section-subtitle">4件</span></h2>
-    <div class="category-intro">
-      候補者の日程調整・優先順位判断・書類選考フォロー・複数応募処理の判断事例です。
-    </div>
+    <h2 class="section-title">候補者対応 <span class="section-subtitle">7件</span></h2>
+    <div class="category-intro">候補者の日程調整・優先順位判断・書類選考フォロー・複数応募・中断時フォローの判断事例です。</div>
 
-    <!-- Case C-01 -->
     <div class="case-card" id="case-c-01">
       <div class="case-header">
         <span class="ch-badge">cl_bpio_rpo_i-ne</span>
-        <span><span class="tag tag-candidate">候補者対応</span></span>
+        <span class="tag tag-candidate">候補者対応</span>
         <span style="color:#888;">2026年4月</span>
-        <span style="margin-left:auto; font-weight:400; font-size:0.75rem;">スレッド参加：田﨑・BPIOメンバー</span>
       </div>
       <div class="case-body">
         <div class="case-label">状況</div>
-        <div class="info-box">
-          内定承諾期限が4月22日の候補者（赤崎さん）がいる中で、面接官の大阪出張スケジュールと東京在宅スケジュールが複雑に絡み合い、最終面接の設定が難航。別候補者（山根さん）の日程と競合している状況だった。
-        </div>
-
+        <div class="info-box">内定承諾期限が4月22日の候補者（赤崎さん）の最終面接設定が難航。面接官の大阪出張・東京在宅スケジュールが複雑に絡み、別候補者（山根さん）の日程と競合していた。</div>
         <div class="case-label">判断した内容</div>
-        <div class="highlight-box">
-          承諾期限内に面接完了できるよう、この候補者の対応を「担当範囲内のどの作業よりも最優先」とし、当日中のやり取り完了を指示。山根さんをリリースまたはリスケして赤崎さんの枠を確保する方針とした。
-        </div>
-
-        <div class="case-label">判断根拠</div>
-        <p>承諾期限が明確に設定されており、この期限を超えると候補者を失うリスクがある。書類選考の遅延より候補者を確保することの優先度が高いと判断した。</p>
-
+        <div class="highlight-box">承諾期限内に面接完了できるよう「担当範囲内のどの作業よりも最優先」と指示。山根さんをリリース/リスケして赤崎さんの枠を確保した。</div>
         <div class="case-label">汎用ルール</div>
-        <div class="rule-box">
-          <strong>【承諾期限迫り候補者の最優先対応ルール】</strong><br>
-          内定承諾期限が72時間以内に迫っている候補者は、他の書類選考・日程調整より最優先で扱う。面接官のリスケが必要な場合は既存予約の移動も検討する。対応が難しい場合は即座にクライアント担当者にエスカレーションする。
-        </div>
+        <div class="rule-box"><strong>【承諾期限迫り候補者の最優先対応ルール】</strong><br>内定承諾期限が72時間以内に迫っている候補者は他の書類選考・日程調整より最優先で扱う。面接官のリスケが必要な場合は既存予約の移動も検討する。対応が難しければ即時クライアント担当者にエスカレーション。</div>
       </div>
     </div>
 
-    <!-- Case C-02 -->
     <div class="case-card" id="case-c-02">
       <div class="case-header">
         <span class="ch-badge">ex_bpio_rpo_i-ne</span>
-        <span><span class="tag tag-candidate">候補者対応</span></span>
+        <span class="tag tag-candidate">候補者対応</span>
         <span style="color:#888;">2026年3月</span>
-        <span style="margin-left:auto; font-weight:400; font-size:0.75rem;">スレッド参加：山下・高橋・BPIOメンバー</span>
       </div>
       <div class="case-body">
         <div class="case-label">状況</div>
-        <div class="info-box">
-          面接の日程調整を行う際、面接官の予定が直近では埋まっていることが多く、候補者に日程提示までに時間がかかってしまうケースが頻発していた。
-        </div>
-
+        <div class="info-box">面接の日程調整を行う際、面接官の予定が直近では埋まっていることが多く、候補者への日程提示が遅れるケースが頻発していた。</div>
         <div class="case-label">判断した内容</div>
-        <div class="highlight-box">
-          日程調整は「基本的に1週後を目安」とする方針を定例で決定。面接の温度感（候補者の意欲や選考優先度）が高い場合は、社内メモで共有してもらい個別に調整する。
-        </div>
-
-        <div class="case-label">判断根拠</div>
-        <p>面接官が多忙なため直近の予定に余裕がないことが多い。一律ルールを設けることで候補者への返答スピードの期待値管理と、BPIOメンバーの問い合わせ頻度を減らす効果を狙った。</p>
-
+        <div class="highlight-box">日程調整は「基本的に1週後を目安」とする方針を定例で決定。面接の温度感が高い場合は社内メモで共有してもらい個別に調整する。</div>
         <div class="case-label">汎用ルール</div>
-        <div class="rule-box">
-          <strong>【日程調整の基本方針】</strong><br>
-          面接日程は提示から1週間後以降を基本とする。ただし「温度感が高い候補者」とクライアントから社内メモ等で共有を受けた場合は、最短日程での調整を優先する。
-        </div>
+        <div class="rule-box"><strong>【日程調整の基本方針】</strong><br>面接日程は提示から1週間後以降を基本とする。「温度感が高い候補者」と社内メモ等で共有を受けた場合は最短日程での調整を優先する。</div>
       </div>
     </div>
 
-    <!-- Case C-03 -->
     <div class="case-card" id="case-c-03">
       <div class="case-header">
         <span class="ch-badge">cl_bpio_rpo_i-ne</span>
-        <span><span class="tag tag-candidate">候補者対応</span></span>
+        <span class="tag tag-candidate">候補者対応</span>
         <span style="color:#888;">2026年3月</span>
-        <span style="margin-left:auto; font-weight:400; font-size:0.75rem;">スレッド参加：山下・BPIOメンバー</span>
       </div>
       <div class="case-body">
         <div class="case-label">状況</div>
-        <div class="info-box">
-          書類選考依頼後にHRBP（クライアント採用担当者）への所感確認を実施しているが、そのやり取りをBPIO側で追いきれていない問題が発生。依頼後の返答があっても、誰が対応しているかわからずに重複対応や放置が起きていた。
-        </div>
-
+        <div class="info-box">書類選考依頼後にHRBPへの所感確認を実施しているが、返答があっても担当者が変わると追いきれずに重複対応や放置が起きていた。</div>
         <div class="case-label">判断した内容</div>
-        <div class="highlight-box">
-          書類選考依頼後に「依頼後1日後の日付、HRBP確認」ラベルをHRMOS上に付与し、返答があった場合の追跡フローを明示化するよう依頼。BPIOメンバーに対してフォロー運用を確認した。
-        </div>
-
-        <div class="case-label">判断根拠</div>
-        <p>BPIOが書類選考の一部をハンドリングしているため、HRBPの所感が返ってきても担当者が変わると追いにくい。HRMOSラベルを活用することでステータス管理を可視化する方針とした。</p>
-
+        <div class="highlight-box">書類選考依頼後に「翌営業日・HRBP確認」ラベルをHRMOS上に付与し、返答があった場合の追跡フローを明示化。</div>
         <div class="case-label">汎用ルール</div>
-        <div class="rule-box">
-          <strong>【書類選考後のHRBP所感追跡ルール】</strong><br>
-          書類選考依頼後はHRMOSに「HRBP確認待ち」ラベルを付与し、翌営業日にフォローを実施する。返答があった場合は速やかにラベルを更新し、次アクション（面接依頼・見送り連絡）に移行する。
-        </div>
+        <div class="rule-box"><strong>【書類選考後のHRBP所感追跡ルール】</strong><br>書類選考依頼後はHRMOSに「HRBP確認待ち」ラベルを付与し翌営業日にフォロー。返答があった場合は速やかにラベルを更新し次アクション（面接依頼・見送り連絡）に移行する。</div>
       </div>
     </div>
 
-    <!-- Case C-04 -->
     <div class="case-card" id="case-c-04">
       <div class="case-header">
         <span class="ch-badge">ex_bpio_rpo_i-ne</span>
-        <span><span class="tag tag-candidate">候補者対応</span></span>
+        <span class="tag tag-candidate">候補者対応</span>
         <span style="color:#888;">2026年3月</span>
-        <span style="margin-left:auto; font-weight:400; font-size:0.75rem;">スレッド参加：村田・BPIOメンバー</span>
       </div>
       <div class="case-body">
         <div class="case-label">状況</div>
-        <div class="info-box">
-          複数の事業部に同一候補者が重複応募してくるケースが発生。どの部署が対応するかの優先順位や、同一候補者を複数部署で並行選考してよいかが不明確だった。
-        </div>
-
+        <div class="info-box">複数の事業部に同一候補者が重複応募。どの部署が対応するか優先順位や並行選考の可否が不明確だった。</div>
         <div class="case-label">判断した内容</div>
-        <div class="highlight-box">
-          重複応募については「部署ごとで採用基準に照らして対応を進める」方針を定例で決定。各部署が独立して選考判断を行い、BPIO側はそれぞれの部署担当者に状況を連携する。
-        </div>
-
-        <div class="case-label">判断根拠</div>
-        <p>部署ごとに採用要件が異なるため、一方の落選が他部署の選考に影響しないよう独立して判断することが適切とされた。ただし候補者への二重連絡を防ぐため、BPIO内での情報共有は必須とした。</p>
-
+        <div class="highlight-box">「部署ごとで採用基準に照らして対応を進める」方針を決定。各部署が独立して選考判断を行い、BPIO側は各部署担当者に状況を連携する。</div>
         <div class="case-label">汎用ルール</div>
-        <div class="rule-box">
-          <strong>【重複応募の処理ルール】</strong><br>
-          同一候補者が複数部署に応募した場合、各部署が独立して採用基準に基づき選考を進める。BPIO内では同一候補者の並行選考状況を共有し、候補者への連絡が重複しないよう注意する。
-        </div>
+        <div class="rule-box"><strong>【重複応募の処理ルール】</strong><br>同一候補者が複数部署に応募した場合、各部署が独立して採用基準に基づき選考を進める。BPIO内では並行選考状況を共有し、候補者への連絡が重複しないよう注意する。</div>
+      </div>
+    </div>
+
+    <div class="case-card" id="case-c-05">
+      <div class="case-header">
+        <span class="ch-badge">proj-採用-2026-営業本部</span>
+        <span class="tag tag-candidate">候補者対応</span>
+        <span style="color:#888;">2026年4月</span>
+      </div>
+      <div class="case-body">
+        <div class="case-label">状況</div>
+        <div class="info-box">面接当日の朝に候補者（松田さん）から「子どもの体調不良で参加できない」と連絡が入り急遽欠席。クライアント担当者は当日メールで初めて把握した。</div>
+        <div class="case-label">判断した内容</div>
+        <div class="highlight-box">リスケ調整を進めつつ、今後は「リスケならリスケで事前に連絡をもらう」よう候補者に依頼する旨をクライアントに伝達した。</div>
+        <div class="case-label">汎用ルール</div>
+        <div class="rule-box"><strong>【面接当日キャンセル時の対応ルール】</strong><br>候補者から当日の欠席・遅延連絡があった場合は即時クライアント担当者にSlack連絡し、リスケ対応を開始する。候補者には「やむを得ない場合は当日でも早めに事前連絡をください」と案内しておく。</div>
+      </div>
+    </div>
+
+    <div class="case-card" id="case-c-06">
+      <div class="case-header">
+        <span class="ch-badge">proj-採用-2026-artemis知財</span>
+        <span class="tag tag-candidate">候補者対応</span>
+        <span style="color:#888;">2026年4月</span>
+      </div>
+      <div class="case-body">
+        <div class="case-label">状況</div>
+        <div class="info-box">選考中の候補者（松平さん）が現職での部署異動（リスクコンプラ室へ）が4月から発生し、「直近の転職はできない」と連絡があった。半年〜1年後の転職を想定している状況。</div>
+        <div class="case-label">判断した内容</div>
+        <div class="highlight-box">選考は一時中断。松平さんの状況を適宜フォローしながら、他の候補者の採用活動を並行して継続する方針とした。</div>
+        <div class="case-label">汎用ルール</div>
+        <div class="rule-box"><strong>【転職活動中断候補者のフォロールール】</strong><br>現職都合で選考中断となった候補者は「保留」ステータスに変更し、3〜6ヶ月後に再連絡予定としてHRMOSにメモを残す。他候補者の選考は中断せず並行して継続する。</div>
+      </div>
+    </div>
+
+    <div class="case-card" id="case-c-07">
+      <div class="case-header">
+        <span class="ch-badge">proj-採用-2026-bw事業本部_広報室</span>
+        <span class="tag tag-candidate">候補者対応</span>
+        <span style="color:#888;">2026年4月</span>
+      </div>
+      <div class="case-body">
+        <div class="case-label">状況</div>
+        <div class="info-box">面談当日15時に予定していた候補者（石水さん）が来ない。HRMOSへのメール・電話ともに不通の状態が続いた。</div>
+        <div class="case-label">判断した内容</div>
+        <div class="highlight-box">HRMOSへのメール → 電話（不通）→ 再度メールの順で対応。リスケの相談を進め、リスケ実施時は再調整を行う方針とした。クライアント担当者にも状況を即時共有した。</div>
+        <div class="case-label">汎用ルール</div>
+        <div class="rule-box"><strong>【面談無断欠席時の対応フロー】</strong><br>①HRMOS/メールで連絡 → ②電話（不通なら折り返し依頼のメッセージ残す）→ ③クライアント担当者に状況報告 → ④リスケ可否を候補者に確認。無断欠席2回目以降は選考中断を検討する。</div>
       </div>
     </div>
   </section>
 
-  <!-- Section 4: Scope -->
-  <section class="section" id="scope">
-    <h2 class="section-title">スコープ・引き継ぎ <span class="section-subtitle">3件</span></h2>
-    <div class="category-intro">
-      クライアント対応範囲の境界・引き継ぎ基準・非公開情報の取り扱い判断の事例です。
+  <!-- Section 4: Agent -->
+  <section class="section" id="agent">
+    <h2 class="section-title">エージェント対応 <span class="section-subtitle">3件</span></h2>
+    <div class="category-intro">人材エージェント・派遣会社とのやり取りで発生した判断・トラブル対応の事例です。</div>
+
+    <div class="case-card" id="case-a-01">
+      <div class="case-header">
+        <span class="ch-badge">proj-採用-2026-dｍ本部</span>
+        <span class="tag tag-agent">エージェント対応</span>
+        <span style="color:#888;">2026年4月</span>
+      </div>
+      <div class="case-body">
+        <div class="case-label">状況</div>
+        <div class="info-box">翌日予定の派遣デザイナー職場見学について、前日にエージェントから「M.Y様キャンセル。代替にM.M様はどうか」と打診があった。ただし送られてきたスキルシートが別候補者のものであり、個人情報の取り違えが発生していた。</div>
+        <div class="case-label">判断した内容</div>
+        <div class="highlight-box">当日17時を期限として設定し、それまでに①正しいスキルシートの提出②代替候補者の承認③日程確定の3点が揃わなければ翌日は実施しない方針で対応。エージェントへ確認連絡を即時実施。</div>
+        <div class="case-label">汎用ルール</div>
+        <div class="rule-box"><strong>【直前キャンセル＋代替候補打診時の対応ルール】</strong><br>前日以降のキャンセル＋代替打診には、当日対応期限（通常は当日17時）を設けて判断する。スキルシートの人物が正しいかを必ず確認する。対応期限までに条件が揃わない場合は実施を中止する。</div>
+      </div>
     </div>
 
-    <!-- Case S-01 -->
+    <div class="case-card" id="case-a-02">
+      <div class="case-header">
+        <span class="ch-badge">proj-採用-2026-dｍ本部</span>
+        <span class="tag tag-agent">エージェント対応</span>
+        <span style="color:#888;">2026年4月</span>
+      </div>
+      <div class="case-body">
+        <div class="case-label">状況</div>
+        <div class="info-box">派遣デザイナーの職場見学日程調整において、面接官（須田さん・碓村さん・本村さん）のうち本村さんの予定をBPIO側で把握できないため、日程調整が進まなかった。</div>
+        <div class="case-label">判断した内容</div>
+        <div class="highlight-box">クライアントに対して「本村様のご都合もあわせてご確認いただけますか」と依頼。BPIO側ではカバーできない面接官については都度クライアントに確認を取る運用とした。</div>
+        <div class="case-label">汎用ルール</div>
+        <div class="rule-box"><strong>【BPIO外面接官の予定確認ルール】</strong><br>HRMOSやカレンダー連携で予定が確認できない面接官が含まれる場合は、クライアント担当者に「〇〇さんのご都合もご確認いただけますか」と依頼メッセージを送る。</div>
+      </div>
+    </div>
+
+    <div class="case-card" id="case-a-03">
+      <div class="case-header">
+        <span class="ch-badge">proj-採用-2025-トゥヴェール</span>
+        <span class="tag tag-agent">エージェント対応</span>
+        <span style="color:#888;">2026年3月</span>
+      </div>
+      <div class="case-body">
+        <div class="case-label">状況</div>
+        <div class="info-box">過去にBAされた（お断りした）候補者について、石川さん（クライアント社員）の知人が再度接触を望んでいるという情報が入った。時給単価・直雇用の方針など採用条件が前回と異なる可能性があった。</div>
+        <div class="case-label">判断した内容</div>
+        <div class="highlight-box">BAされた候補者の再アプローチは、直接雇用は現時点でしない方針のため、時給単価の条件（経験者：2600〜2800円/時）で再ヒアリングを実施。意思確認ができた段階で紹介フローに乗せる判断とした。</div>
+        <div class="case-label">汎用ルール</div>
+        <div class="rule-box"><strong>【BA候補者の再アプローチ判断基準】</strong><br>過去にBAした候補者への再接触は①雇用形態（直雇用か派遣か）②時給・給与条件の現在の基準を確認した上で、条件が合致する場合のみ紹介フローに乗せる。条件変更があれば先方に開示して意思確認を取る。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 5: Scope -->
+  <section class="section" id="scope">
+    <h2 class="section-title">スコープ・引き継ぎ <span class="section-subtitle">4件</span></h2>
+    <div class="category-intro">クライアント対応範囲の境界・引き継ぎ基準・非公開情報の取り扱い判断の事例です。</div>
+
     <div class="case-card" id="case-s-01">
       <div class="case-header">
         <span class="ch-badge">ex_bpio_rpo_i-ne</span>
-        <span><span class="tag tag-scope">スコープ・引き継ぎ</span></span>
+        <span class="tag tag-scope">スコープ・引き継ぎ</span>
         <span style="color:#888;">2026年3月</span>
-        <span style="margin-left:auto; font-weight:400; font-size:0.75rem;">スレッド参加：田﨑・BPIOメンバー</span>
       </div>
       <div class="case-body">
         <div class="case-label">状況</div>
-        <div class="info-box">
-          BPIO側の対応開始日（3/19）が決まっていたが、それ以前に既にやり取りが始まっていた候補者の引き継ぎ方法が不明確。候補者引継ぎシートへの記載基準と範囲について確認が必要だった。
-        </div>
-
+        <div class="info-box">BPIO対応開始日（3/19）が決まっていたが、それ以前にやり取りが始まっていた候補者の引き継ぎ方法が不明確。引継ぎシートへの記載基準を確認する必要があった。</div>
         <div class="case-label">判断した内容</div>
-        <div class="highlight-box">
-          引継ぎシートへの記載対象は「BPIO対応開始前（3/18まで）のやり取りがあった候補者のうち、今後BPIO側で対応が発生する方」に限定。対応開始後の新規応募者は記載不要とした。
-        </div>
-
-        <div class="case-label">判断根拠</div>
-        <p>引継ぎシートはBPIO側が過去のやり取りを把握して対応を引き継ぐためのものであり、BPIO開始後の新規応募者はシートなしに対応可能。余計な記載で運用が複雑になることを避けた。</p>
-
+        <div class="highlight-box">引継ぎシートへの記載対象は「BPIO対応開始前（3/18まで）のやり取りがあった候補者のうち、今後BPIO側で対応が発生する方」に限定。開始後の新規応募者は記載不要。</div>
         <div class="case-label">汎用ルール</div>
-        <div class="rule-box">
-          <strong>【候補者引継ぎシートの記載基準】</strong><br>
-          記載対象はBPIO対応開始日の前日（前日23:59）までにやり取りが発生した候補者のうち、今後BPIOで対応が必要なものに限る。開始後の新規応募者はシート記載不要。
-        </div>
+        <div class="rule-box"><strong>【候補者引継ぎシートの記載基準】</strong><br>記載対象はBPIO対応開始日前日までにやり取りが発生した候補者のうち、今後BPIOで対応が必要なものに限る。開始後の新規応募者はシート記載不要。</div>
       </div>
     </div>
 
-    <!-- Case S-02 -->
     <div class="case-card" id="case-s-02">
       <div class="case-header">
         <span class="ch-badge">cl_bpio_rpo_i-ne</span>
-        <span><span class="tag tag-scope">スコープ・引き継ぎ</span></span>
+        <span class="tag tag-scope">スコープ・引き継ぎ</span>
         <span style="color:#888;">2026年3月</span>
-        <span style="margin-left:auto; font-weight:400; font-size:0.75rem;">スレッド参加：村田・山下・BPIOメンバー</span>
       </div>
       <div class="case-body">
         <div class="case-label">状況</div>
-        <div class="info-box">
-          田﨑さん部署について、クライアント（田﨑さん）が自部署のスカウト対応を「事業側で行いたい」との希望を表明。BPIOがスカウト送付を担当する予定だったが、役割分担の変更が必要になった。
-        </div>
-
+        <div class="info-box">田﨑さん部署が「自部署のスカウト対応を事業側でやりたい」と希望。BPIOがスカウト送付を担当する予定だったが役割分担の変更が必要になった。</div>
         <div class="case-label">判断した内容</div>
-        <div class="highlight-box">
-          田﨑さん部署のスカウト対応は、事業側（クライアント）が行う流れに変更。BPIOはこれをシステム・チャンネル上で対応不要として認識し直し、他部署との差異として管理する。
-        </div>
-
-        <div class="case-label">判断根拠</div>
-        <p>クライアント側に希望があり、その部署の採用文化・ニュアンスを知る事業側がスカウトを送る方が有効という判断。BPIOとしては受け入れてスコープを明確化することで混乱を防いだ。</p>
-
+        <div class="highlight-box">田﨑さん部署のスカウト対応は事業側（クライアント）が行う流れに変更。BPIOはシステム・チャンネル上で対応不要として管理し直す。</div>
         <div class="case-label">汎用ルール</div>
-        <div class="rule-box">
-          <strong>【事業部別スカウト担当の可変ルール】</strong><br>
-          スカウト送付の担当はデフォルトBPIOだが、事業部担当者から「自部署で対応したい」旨の意思表示があった場合はその部署に委ねる。変更は社内チャンネルで共有し、「事業部まとめ」資料も合わせて更新する。
-        </div>
+        <div class="rule-box"><strong>【事業部別スカウト担当の可変ルール】</strong><br>スカウト送付のデフォルト担当はBPIOだが、事業部担当者から「自部署で対応したい」旨の意思表示があった場合はその部署に委ねる。変更は社内チャンネルで共有し「事業部まとめ」資料も合わせて更新する。</div>
       </div>
     </div>
 
-    <!-- Case S-03 -->
     <div class="case-card" id="case-s-03">
       <div class="case-header">
         <span class="ch-badge">ex_bpio_rpo_i-ne</span>
-        <span><span class="tag tag-scope">スコープ・引き継ぎ</span></span>
+        <span class="tag tag-scope">スコープ・引き継ぎ</span>
         <span style="color:#888;">2026年3月</span>
-        <span style="margin-left:auto; font-weight:400; font-size:0.75rem;">スレッド参加：BPIOメンバー・役員秘書</span>
       </div>
       <div class="case-body">
         <div class="case-label">状況</div>
-        <div class="info-box">
-          事業責任者候補（マネージャークラス）の非公開求人に対して候補者が面接希望。役員（伊藤さん）との日程調整が必要だが、通常チャンネルで連絡すると非公開情報が露出するリスクがあった。BPIOメンバーは役員秘書へのSlack連携方法が不明だった。
-        </div>
-
+        <div class="info-box">事業責任者候補（マネージャークラス）の非公開求人に対して候補者が面接希望。役員（伊藤さん）との日程調整が必要だが、通常チャンネルで連絡すると非公開情報が露出するリスクがあった。</div>
         <div class="case-label">判断した内容</div>
-        <div class="highlight-box">
-          役員秘書Slackとの連携チャンネルを立ち上げることを提案。既存の懸念点（情報セキュリティ等）がなければ接続依頼する方針とした。それまでは個別のスレッド（非公開チャンネル相当の扱い）で対応する。
-        </div>
-
-        <div class="case-label">判断根拠</div>
-        <p>役員日程調整のルートが確立されていないことが根本課題。専用チャンネルを設けることで今後の同種のケースにも対応できる。</p>
-
+        <div class="highlight-box">役員秘書Slackとの専用連携チャンネルを立ち上げることを提案。それまでは非公開チャンネル相当の扱いで個別スレッドで対応する。</div>
         <div class="case-label">汎用ルール</div>
-        <div class="rule-box">
-          <strong>【非公開求人・役員面接の日程調整ルート】</strong><br>
-          非公開求人や役員面接の日程調整は、通常外部チャンネルで実施しない。役員秘書との専用Slackチャンネルを利用するか、HRMOSの社内メモ機能を通じてやり取りを行う。
-        </div>
+        <div class="rule-box"><strong>【非公開求人・役員面接の日程調整ルート】</strong><br>非公開求人や役員面接の日程調整は通常外部チャンネルで実施しない。役員秘書との専用Slackチャンネルを利用するか、HRMOSの社内メモ機能を通じてやり取りを行う。</div>
+      </div>
+    </div>
+
+    <div class="case-card" id="case-s-04">
+      <div class="case-header">
+        <span class="ch-badge">proj-採用-2025-トゥヴェール</span>
+        <span class="tag tag-scope">スコープ・引き継ぎ</span>
+        <span style="color:#888;">2026年3月</span>
+      </div>
+      <div class="case-body">
+        <div class="case-label">状況</div>
+        <div class="info-box">面接のインビテーションがBPIO担当者（山科さん）に届いたが、面接官（石川さん）のOutlookがHRMOSと連携されていないため、石川さんの予定確認ができず「インビが正しいのか」という混乱が発生した。</div>
+        <div class="case-label">判断した内容</div>
+        <div class="highlight-box">今後の確認方法について村田さんと改めて相談して運用を定める方針とした。暫定的には担当者が直接石川さんに連絡して日程確認を行う。</div>
+        <div class="case-label">汎用ルール</div>
+        <div class="rule-box"><strong>【カレンダー未連携面接官の対応ルール】</strong><br>HRMOSやカレンダーに連携されていない面接官のインビテーションは、送付前にその面接官本人またはクライアント担当者に日程を口頭・メッセージで確認する。連携状況はBPIO運用開始時に一覧化しておく。</div>
       </div>
     </div>
   </section>
 
-  <!-- Section 5: Process -->
+  <!-- Section 6: Process -->
   <section class="section" id="process">
-    <h2 class="section-title">プロセス設計 <span class="section-subtitle">2件</span></h2>
-    <div class="category-intro">
-      運用立ち上げ・スケジュール設計・チャンネル整備など、プロセスレベルの判断事例です。
-    </div>
+    <h2 class="section-title">プロセス設計 <span class="section-subtitle">4件</span></h2>
+    <div class="category-intro">運用立ち上げ・スケジュール設計・求人変更・チャンネル整備など、プロセスレベルの判断事例です。</div>
 
-    <!-- Case P-01 -->
     <div class="case-card" id="case-p-01">
       <div class="case-header">
         <span class="ch-badge">ex_bpio_rpo_i-ne</span>
-        <span><span class="tag tag-process">プロセス設計</span></span>
-        <span style="color:#888;">2026年2月〜3月</span>
-        <span style="margin-left:auto; font-weight:400; font-size:0.75rem;">スレッド参加：林・BPIOメンバー</span>
+        <span class="tag tag-process">プロセス設計</span>
+        <span style="color:#888;">2026年2〜3月</span>
       </div>
       <div class="case-body">
         <div class="case-label">状況</div>
-        <div class="info-box">
-          テスト運用の1週目が祝日を含む日程だったため実質稼働が2日のみとなり、候補者対応（日程調整等）を1件も実施できずに終了。テスト期間内での検証が不十分な状態で本番移行するか迷いが生じた。
-        </div>
-
+        <div class="info-box">テスト運用の1週目が祝日を含む日程だったため実質稼働が2日のみとなり、候補者対応を1件も実施できずに終了。本番移行するか迷いが生じた。</div>
         <div class="case-label">判断した内容</div>
-        <div class="highlight-box">
-          テスト期間を1週間延長し、追加の1週間で候補者対応の実地検証と各部署との詳細確認・スカウト目線合わせを並行して実施することを提案・承認。
-        </div>
-
-        <div class="case-label">判断根拠</div>
-        <p>候補者対応の具体的な連携を1件も実施できていない状態での本番移行はリスクが高い。クライアント理解のもと期間延長を提案し、検証結果を確認してから移行する方が品質担保できると判断した。</p>
-
+        <div class="highlight-box">テスト期間を1週間延長し、候補者対応の実地検証と各部署の詳細確認・スカウト目線合わせを並行して実施することを提案・承認。</div>
         <div class="case-label">汎用ルール</div>
-        <div class="rule-box">
-          <strong>【テスト運用延長の判断基準】</strong><br>
-          テスト期間中に「候補者対応の実地件数がゼロ」または「稼働実績が2日以下」の場合は、1週間延長を検討する。延長判断はクライアント担当者への提案形式で行い、その記録をチャンネルに残す。
-        </div>
+        <div class="rule-box"><strong>【テスト運用延長の判断基準】</strong><br>テスト期間中に「候補者対応の実地件数がゼロ」または「稼働実績が2日以下」の場合は1週間延長を検討する。延長判断はクライアント担当者への提案形式で行い記録をチャンネルに残す。</div>
       </div>
     </div>
 
-    <!-- Case P-02 -->
     <div class="case-card" id="case-p-02">
       <div class="case-header">
         <span class="ch-badge">ex_bpio_rpo_i-ne</span>
-        <span><span class="tag tag-process">プロセス設計</span></span>
+        <span class="tag tag-process">プロセス設計</span>
         <span style="color:#888;">2026年3月</span>
-        <span style="margin-left:auto; font-weight:400; font-size:0.75rem;">スレッド参加：林・BPIOメンバー</span>
       </div>
       <div class="case-body">
         <div class="case-label">状況</div>
-        <div class="info-box">
-          26年度の組織改編に伴い、既存のSlackチャンネル（事業部別のRPO連携チャンネル）の構成が実態と乖離し始めた。情報管理上の観点から、チャンネルを整理・再構成する必要が生じた。
-        </div>
-
+        <div class="info-box">26年度の組織改編に伴い既存のSlackチャンネル構成が実態と乖離し始めた。情報管理上の観点からチャンネルを整理・再構成する必要が生じた。</div>
         <div class="case-label">判断した内容</div>
-        <div class="highlight-box">
-          26年度版の組織構成（B&amp;W・DM本部・TV・SCM本部・営業本部・経営管理本部など）に合わせてチャンネルを立ち上げ直す。同時にHRMOSとSlackの連携も推奨設定に合わせて整備する。
-        </div>
-
-        <div class="case-label">判断根拠</div>
-        <p>年度切り替えのタイミングに合わせてチャンネルを再編することで、関係者の範囲が明確になり情報漏洩リスクを低減できる。林さんとの協議で方針が固まった。</p>
-
+        <div class="highlight-box">26年度版組織構成（B&W・DM本部・TV・SCM本部・営業本部・経営管理本部など）に合わせてチャンネルを立ち上げ直す。同時にHRMOSとSlack連携の推奨設定も整備する。</div>
         <div class="case-label">汎用ルール</div>
-        <div class="rule-box">
-          <strong>【年度切り替え時のチャンネル再編ルール】</strong><br>
-          年度末（毎年3月）に事業部別チャンネルと実際の組織構成の一致を確認し、乖離があれば新年度開始に合わせてチャンネルを再構成する。再編時はHRMOSとのSlack連携設定も合わせて確認する。
-        </div>
+        <div class="rule-box"><strong>【年度切り替え時のチャンネル再編ルール】</strong><br>年度末（毎年3月）に事業部別チャンネルと実際の組織構成の一致を確認し、乖離があれば新年度開始に合わせてチャンネルを再構成する。再編時はHRMOSとのSlack連携設定も合わせて確認する。</div>
+      </div>
+    </div>
+
+    <div class="case-card" id="case-p-03">
+      <div class="case-header">
+        <span class="ch-badge">proj-採用-2026-SCM本部</span>
+        <span class="tag tag-process">プロセス設計</span>
+        <span style="color:#888;">2026年4月</span>
+      </div>
+      <div class="case-body">
+        <div class="case-label">状況</div>
+        <div class="info-box">SCM本部の化粧品求人について「採用要件が厳しすぎるかもしれない」と担当者が感じ、要件変更か複数軸での募集かを検討。管理が煩雑になる懸念があった。</div>
+        <div class="case-label">判断した内容</div>
+        <div class="highlight-box">まず現行要件での募集を試みた上で状況を見て判断することとし、変更の場合は既存求人の要件を更新する方針。複数求人の並行管理は煩雑なため原則1軸にとどめる。</div>
+        <div class="case-label">汎用ルール</div>
+        <div class="rule-box"><strong>【求人要件変更の判断ルール】</strong><br>採用要件の緩和・変更が必要と判断した場合は、既存求人の要件更新を優先する。複数軸での並行掲載は管理コストが高いため、選考状況（母集団・通過率）で効果を確認してから検討する。</div>
+      </div>
+    </div>
+
+    <div class="case-card" id="case-p-04">
+      <div class="case-header">
+        <span class="ch-badge">proj-採用-2026-SCM本部</span>
+        <span class="tag tag-process">プロセス設計</span>
+        <span style="color:#888;">2026年4月</span>
+      </div>
+      <div class="case-body">
+        <div class="case-label">状況</div>
+        <div class="info-box">SCM本部でHRMOS未連携の状態で採用活動が進んでいた。リファラル候補者が「未対応」ステータスのまま放置されていることがMTGで発覚した。</div>
+        <div class="case-label">判断した内容</div>
+        <div class="highlight-box">HRMOS未連携の場合はSlackコメントで進捗を管理する暫定対応を継続。リファラル候補者の未対応ステータスはMTGで定期確認する。</div>
+        <div class="case-label">汎用ルール</div>
+        <div class="rule-box"><strong>【HRMOS未連携時のリファラル候補者管理ルール】</strong><br>HRMOS未連携の部署では、リファラル候補者のステータスをSlackスレッド上で管理し、週次定例で未対応者の有無を確認する。連携が完了次第HRMOSに移行する。</div>
       </div>
     </div>
   </section>
 
-  <!-- Section 6: Index -->
+  <!-- Section 7: Index -->
   <section class="section" id="index">
     <h2 class="section-title">全ケース索引</h2>
     <table>
       <thead>
-        <tr>
-          <th style="width:60px;">No.</th>
-          <th style="width:140px;">カテゴリ</th>
-          <th>タイトル</th>
-          <th style="width:200px;">チャンネル</th>
-        </tr>
+        <tr><th style="width:70px;">No.</th><th style="width:150px;">カテゴリ</th><th>タイトル</th><th style="width:220px;">チャンネル</th></tr>
       </thead>
       <tbody>
-        <tr>
-          <td>ATS-01</td>
-          <td><span class="tag tag-ats">ATSツール</span></td>
-          <td><a class="idx-link" href="#case-ats-01">ZOOM待機室設定のホスト許可問題と再発行判断</a></td>
-          <td>ex_bpio_rpo_i-ne</td>
-        </tr>
-        <tr>
-          <td>ATS-02</td>
-          <td><span class="tag tag-ats">ATSツール</span></td>
-          <td><a class="idx-link" href="#case-ats-02">SPI閲覧不可・HRMOSアカウント発行フロー</a></td>
-          <td>ex_bpio_rpo_i-ne</td>
-        </tr>
-        <tr>
-          <td>ATS-03</td>
-          <td><span class="tag tag-ats">ATSツール</span></td>
-          <td><a class="idx-link" href="#case-ats-03">WantedlyとGreenのHRMOS完結フロー統一</a></td>
-          <td>ex_bpio_rpo_i-ne</td>
-        </tr>
-        <tr>
-          <td>C-01</td>
-          <td><span class="tag tag-candidate">候補者対応</span></td>
-          <td><a class="idx-link" href="#case-c-01">承諾期限迫り候補者の最優先対応と面接官リスケ判断</a></td>
-          <td>cl_bpio_rpo_i-ne</td>
-        </tr>
-        <tr>
-          <td>C-02</td>
-          <td><span class="tag tag-candidate">候補者対応</span></td>
-          <td><a class="idx-link" href="#case-c-02">面接日程調整の基本方針（1週後目安）</a></td>
-          <td>ex_bpio_rpo_i-ne</td>
-        </tr>
-        <tr>
-          <td>C-03</td>
-          <td><span class="tag tag-candidate">候補者対応</span></td>
-          <td><a class="idx-link" href="#case-c-03">書類選考後のHRBP所感追跡・HRMOSラベル運用</a></td>
-          <td>cl_bpio_rpo_i-ne</td>
-        </tr>
-        <tr>
-          <td>C-04</td>
-          <td><span class="tag tag-candidate">候補者対応</span></td>
-          <td><a class="idx-link" href="#case-c-04">複数部署への重複応募の独立選考方針</a></td>
-          <td>ex_bpio_rpo_i-ne</td>
-        </tr>
-        <tr>
-          <td>S-01</td>
-          <td><span class="tag tag-scope">スコープ</span></td>
-          <td><a class="idx-link" href="#case-s-01">候補者引継ぎシートの記載対象の絞り込み基準</a></td>
-          <td>ex_bpio_rpo_i-ne</td>
-        </tr>
-        <tr>
-          <td>S-02</td>
-          <td><span class="tag tag-scope">スコープ</span></td>
-          <td><a class="idx-link" href="#case-s-02">事業部からのスカウト対応要望に伴うスコープ変更</a></td>
-          <td>cl_bpio_rpo_i-ne</td>
-        </tr>
-        <tr>
-          <td>S-03</td>
-          <td><span class="tag tag-scope">スコープ</span></td>
-          <td><a class="idx-link" href="#case-s-03">非公開求人・役員面接の日程調整専用ルート</a></td>
-          <td>ex_bpio_rpo_i-ne</td>
-        </tr>
-        <tr>
-          <td>P-01</td>
-          <td><span class="tag tag-process">プロセス設計</span></td>
-          <td><a class="idx-link" href="#case-p-01">テスト運用延長の判断基準（祝日・実稼働日数）</a></td>
-          <td>ex_bpio_rpo_i-ne</td>
-        </tr>
-        <tr>
-          <td>P-02</td>
-          <td><span class="tag tag-process">プロセス設計</span></td>
-          <td><a class="idx-link" href="#case-p-02">年度切り替えに伴うSlackチャンネル再編</a></td>
-          <td>ex_bpio_rpo_i-ne</td>
-        </tr>
+        <tr><td>ATS-01</td><td><span class="tag tag-ats">ATSツール</span></td><td><a class="idx-link" href="#case-ats-01">ZOOM待機室設定のホスト許可問題と再発行判断</a></td><td>ex_bpio_rpo_i-ne</td></tr>
+        <tr><td>ATS-02</td><td><span class="tag tag-ats">ATSツール</span></td><td><a class="idx-link" href="#case-ats-02">SPI閲覧不可・HRMOSアカウント発行フロー</a></td><td>ex_bpio_rpo_i-ne</td></tr>
+        <tr><td>ATS-03</td><td><span class="tag tag-ats">ATSツール</span></td><td><a class="idx-link" href="#case-ats-03">HRMOSリンク共有時のアクセス権エラー</a></td><td>proj-採用-2026-dｍ本部</td></tr>
+        <tr><td>ATS-04</td><td><span class="tag tag-ats">ATSツール</span></td><td><a class="idx-link" href="#case-ats-04">WantedlyとGreenのHRMOS完結フロー統一</a></td><td>ex_bpio_rpo_i-ne</td></tr>
+        <tr><td>C-01</td><td><span class="tag tag-candidate">候補者対応</span></td><td><a class="idx-link" href="#case-c-01">承諾期限迫り候補者の最優先対応と面接官リスケ判断</a></td><td>cl_bpio_rpo_i-ne</td></tr>
+        <tr><td>C-02</td><td><span class="tag tag-candidate">候補者対応</span></td><td><a class="idx-link" href="#case-c-02">面接日程調整の基本方針（1週後目安）</a></td><td>ex_bpio_rpo_i-ne</td></tr>
+        <tr><td>C-03</td><td><span class="tag tag-candidate">候補者対応</span></td><td><a class="idx-link" href="#case-c-03">書類選考後のHRBP所感追跡・HRMOSラベル運用</a></td><td>cl_bpio_rpo_i-ne</td></tr>
+        <tr><td>C-04</td><td><span class="tag tag-candidate">候補者対応</span></td><td><a class="idx-link" href="#case-c-04">複数部署への重複応募の独立選考方針</a></td><td>ex_bpio_rpo_i-ne</td></tr>
+        <tr><td>C-05</td><td><span class="tag tag-candidate">候補者対応</span></td><td><a class="idx-link" href="#case-c-05">面接当日キャンセル（子の体調不良）時の対応と今後の取り決め</a></td><td>proj-採用-2026-営業本部</td></tr>
+        <tr><td>C-06</td><td><span class="tag tag-candidate">候補者対応</span></td><td><a class="idx-link" href="#case-c-06">現職部署異動による転職活動中断候補者の保留フォロー</a></td><td>proj-採用-2026-artemis知財</td></tr>
+        <tr><td>C-07</td><td><span class="tag tag-candidate">候補者対応</span></td><td><a class="idx-link" href="#case-c-07">面談無断欠席・連絡不通時の対応フロー</a></td><td>proj-採用-2026-bw事業本部</td></tr>
+        <tr><td>A-01</td><td><span class="tag tag-agent">エージェント</span></td><td><a class="idx-link" href="#case-a-01">直前キャンセル＋代替打診時の期限設定と個人情報確認</a></td><td>proj-採用-2026-dｍ本部</td></tr>
+        <tr><td>A-02</td><td><span class="tag tag-agent">エージェント</span></td><td><a class="idx-link" href="#case-a-02">BPIO外面接官の予定が確認できない場合のクライアント確認依頼</a></td><td>proj-採用-2026-dｍ本部</td></tr>
+        <tr><td>A-03</td><td><span class="tag tag-agent">エージェント</span></td><td><a class="idx-link" href="#case-a-03">BA候補者への再アプローチ判断（時給単価・直雇用方針確認）</a></td><td>proj-採用-2025-トゥヴェール</td></tr>
+        <tr><td>S-01</td><td><span class="tag tag-scope">スコープ</span></td><td><a class="idx-link" href="#case-s-01">候補者引継ぎシートの記載対象の絞り込み基準</a></td><td>ex_bpio_rpo_i-ne</td></tr>
+        <tr><td>S-02</td><td><span class="tag tag-scope">スコープ</span></td><td><a class="idx-link" href="#case-s-02">事業部からのスカウト対応要望に伴うスコープ変更</a></td><td>cl_bpio_rpo_i-ne</td></tr>
+        <tr><td>S-03</td><td><span class="tag tag-scope">スコープ</span></td><td><a class="idx-link" href="#case-s-03">非公開求人・役員面接の日程調整専用ルート</a></td><td>ex_bpio_rpo_i-ne</td></tr>
+        <tr><td>S-04</td><td><span class="tag tag-scope">スコープ</span></td><td><a class="idx-link" href="#case-s-04">カレンダー未連携面接官のインビテーション確認方法</a></td><td>proj-採用-2025-トゥヴェール</td></tr>
+        <tr><td>P-01</td><td><span class="tag tag-process">プロセス設計</span></td><td><a class="idx-link" href="#case-p-01">テスト運用延長の判断基準（祝日・実稼働日数）</a></td><td>ex_bpio_rpo_i-ne</td></tr>
+        <tr><td>P-02</td><td><span class="tag tag-process">プロセス設計</span></td><td><a class="idx-link" href="#case-p-02">年度切り替えに伴うSlackチャンネル再編</a></td><td>ex_bpio_rpo_i-ne</td></tr>
+        <tr><td>P-03</td><td><span class="tag tag-process">プロセス設計</span></td><td><a class="idx-link" href="#case-p-03">採用要件が厳しすぎる場合の変更vs複数軸募集の判断</a></td><td>proj-採用-2026-SCM本部</td></tr>
+        <tr><td>P-04</td><td><span class="tag tag-process">プロセス設計</span></td><td><a class="idx-link" href="#case-p-04">HRMOS未連携時のリファラル候補者ステータス管理</a></td><td>proj-採用-2026-SCM本部</td></tr>
       </tbody>
     </table>
   </section>
