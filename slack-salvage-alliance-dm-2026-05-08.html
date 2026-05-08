@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slack サルベージ｜アライアンス対応 DM — BPIO</title>
+  <style>
+body {
+  font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  color: #1a1a1a; background: #fff; line-height: 1.7; margin: 0; padding: 0;
+}
+html { font-size: 15px; }
+* { box-sizing: border-box; }
+
+#sticky-nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.97); border-bottom: 1px solid #ccc;
+  padding: 12px 20px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  backdrop-filter: blur(6px);
+}
+#sticky-nav .nav-label { font-size: 0.72rem; font-weight: 700; color: #777; letter-spacing: 0.05em; }
+.pill {
+  display: inline-block; padding: 5px 16px; font-size: 0.78rem; font-weight: 600;
+  color: #555; text-decoration: none; border: 1px solid #ccc;
+  border-radius: 999px; transition: all 0.2s ease;
+}
+.pill:hover, .pill.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+
+#main { max-width: 920px; margin: 0 auto; padding: 40px 48px 80px; }
+
+.report-header { border-bottom: 2px solid #1a1a1a; padding-bottom: 20px; margin-bottom: 32px; }
+.report-header h1 { font-size: 1.6rem; font-weight: 700; line-height: 1.3; margin-bottom: 4px; }
+.report-header .subtitle { font-size: 0.9rem; color: #555; margin-bottom: 16px; }
+.report-header .summary-box {
+  background: #f7f7f7; border: 1px solid #ddd; padding: 16px 20px; margin-top: 16px;
+}
+.report-header .summary-box h3 { font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; margin-top: 0; }
+.report-header .summary-box ul { padding-left: 20px; font-size: 0.82rem; margin: 0; }
+.report-header .summary-box li { margin-bottom: 4px; }
+
+h2.section-title {
+  font-size: 1.2rem; font-weight: 700;
+  border-bottom: 1px solid #999; padding-bottom: 6px;
+  margin-top: 48px; margin-bottom: 20px;
+}
+h3.subsection-title {
+  font-size: 1.0rem; font-weight: 700; margin-top: 32px; margin-bottom: 12px;
+  padding-left: 10px; border-left: 3px solid #555;
+}
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 0.82rem; }
+table th, table td { border: 1px solid #bbb; padding: 7px 10px; text-align: left; vertical-align: top; }
+table th { background: #f0f0f0; font-weight: 700; white-space: nowrap; }
+table tr:nth-child(even) td { background: #fafafa; }
+
+p { margin-bottom: 10px; font-size: 0.88rem; }
+ul, ol { margin-bottom: 10px; padding-left: 22px; font-size: 0.88rem; }
+
+.highlight-box {
+  background: #f7f7f7; border: 1px solid #ddd;
+  padding: 14px 18px; margin: 12px 0 20px; font-size: 0.85rem;
+}
+.info-box {
+  background: #eff6ff; border-left: 4px solid #3b82f6;
+  padding: 10px 16px; margin: 12px 0 20px; font-size: 0.82rem; color: #1e3a5f;
+}
+.note-box {
+  background: #fffbeb; border-left: 4px solid #f59e0b;
+  padding: 10px 16px; margin: 12px 0 20px; font-size: 0.82rem; color: #78350f;
+}
+
+.badge {
+  display: inline-block; padding: 2px 10px;
+  font-size: 0.72rem; font-weight: 700; border-radius: 999px; letter-spacing: 0.03em;
+}
+.badge-info    { background: #d1ecf1; color: #0c5460; }
+.badge-pending { background: #e2e3e5; color: #383d41; }
+.badge-ok      { background: #d4edda; color: #155724; }
+.badge-warn    { background: #fff3cd; color: #856404; }
+.badge-danger  { background: #f8d7da; color: #721c24; }
+
+.flow { display: flex; align-items: center; gap: 0; margin: 20px 0; flex-wrap: wrap; justify-content: center; }
+.flow-step {
+  background: #f0f0f0; border: 1px solid #ccc; padding: 10px 18px;
+  font-size: 0.82rem; font-weight: 600; text-align: center; min-width: 120px;
+}
+.flow-step.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+.flow-arrow { font-size: 1.2rem; color: #999; padding: 0 4px; }
+
+.action-list { list-style: none; padding-left: 0; }
+.action-list li {
+  padding: 10px 14px; margin-bottom: 8px;
+  background: #fafafa; border: 1px solid #ddd; font-size: 0.85rem;
+}
+.action-list li .who {
+  display: inline-block; font-weight: 700; font-size: 0.78rem;
+  background: #1a1a1a; color: #fff; padding: 1px 8px; border-radius: 999px; margin-right: 6px;
+}
+
+.project-card {
+  border: 1px solid #ddd; margin-bottom: 32px; padding: 20px 24px;
+}
+.project-card .card-header {
+  display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px;
+  padding-bottom: 12px; border-bottom: 1px solid #eee;
+}
+.project-card .card-header .status-icon { font-size: 1.4rem; flex-shrink: 0; }
+.project-card .card-header .card-title { font-size: 1.05rem; font-weight: 700; }
+.project-card .card-meta { font-size: 0.78rem; color: #666; margin-top: 4px; }
+.project-card dl { display: grid; grid-template-columns: 7em 1fr; gap: 4px 12px; font-size: 0.84rem; margin: 0 0 14px; }
+.project-card dt { font-weight: 700; color: #555; }
+.project-card dd { margin: 0; }
+
+.msg-log { background: #f9f9f9; border: 1px solid #e0e0e0; padding: 12px 16px; margin: 8px 0 16px; font-size: 0.81rem; }
+.msg-log .msg { margin-bottom: 8px; }
+.msg-log .msg-who { font-weight: 700; color: #1a1a1a; }
+.msg-log .msg-date { color: #888; font-size: 0.75rem; margin-left: 6px; }
+.msg-log .msg-body { margin-top: 2px; color: #333; padding-left: 12px; border-left: 2px solid #ddd; }
+
+.report-footer {
+  border-top: 1px solid #999; margin-top: 48px; padding-top: 16px;
+  font-size: 0.78rem; color: #777;
+}
+
+@media (max-width: 640px) {
+  #main { padding: 24px 20px 60px; }
+  .flow { flex-direction: column; align-items: stretch; }
+  .flow-arrow { transform: rotate(90deg); text-align: center; padding: 4px 0; }
+  .flow-step { min-width: auto; }
+  .project-card dl { grid-template-columns: 1fr; }
+}
+@media print {
+  #sticky-nav { display: none; }
+  #main { padding: 0; max-width: 100%; }
+  .highlight-box, .note-box, .info-box {
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  table th { background: #f0f0f0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+  </style>
+</head>
+<body>
+
+<nav id="sticky-nav">
+  <span class="nav-label">SECTIONS</span>
+  <a class="pill" href="#summary">サマリー</a>
+  <a class="pill" href="#project-1">地銀DB×細川引継</a>
+  <a class="pill" href="#project-2">補助金営業戦略</a>
+  <a class="pill" href="#project-3">常陽セキュリティ</a>
+  <a class="pill" href="#project-4">労務BPO対応</a>
+  <a class="pill" href="#project-5">Retool後続</a>
+  <a class="pill" href="#project-6">パソナ提案</a>
+  <a class="pill" href="#actions">ネクストアクション</a>
+</nav>
+
+<div id="main">
+
+  <header class="report-header">
+    <h1>Slack サルベージ｜アライアンス対応 DM</h1>
+    <p class="subtitle">
+      スキャン日: 2026-05-08 &nbsp;／&nbsp; 対象: DM・グループDM &nbsp;／&nbsp; キーワード: アライアンス・地銀・銀行・補助金
+      &nbsp;<span class="badge badge-ok">今日動き出し 1件</span>
+      &nbsp;<span class="badge badge-warn">要フォローアップ 3件</span>
+      &nbsp;<span class="badge badge-danger">自然消滅 1件</span>
+    </p>
+    <div class="summary-box">
+      <h3>このドキュメントについて</h3>
+      <ul>
+        <li>SlackのDM・グループDMを横断スキャンし、銀行アライアンス・銀行向け営業戦略に関する非公式プロジェクトを抽出したレポートです</li>
+        <li>スキャン対象は直近90日（2026-02〜05）のDM・グループDM計100件以上</li>
+        <li>「アライアンス」「地銀」「銀行 営業」「補助金 銀行」「常陽」等のキーワードで横断検索を実施</li>
+        <li><strong>プロジェクト①（地銀DB×細川引継）は本日5/8に山科さんが引継ぎMTを設定済み</strong>という最新情報あり</li>
+        <li>いずれもチケット・タスク管理ツールへの登録が確認できないDM内の会話です</li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- サマリー -->
+  <h2 class="section-title" id="summary">スキャン結果サマリー</h2>
+
+  <table>
+    <tr>
+      <th>#</th>
+      <th>プロジェクト</th>
+      <th>状態</th>
+      <th>関係者</th>
+      <th>最終活動</th>
+      <th>重要度</th>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>地銀DB整備 → 細川さんへの営業引継ぎ</td>
+      <td><span class="badge badge-ok">🔄 本日始動</span></td>
+      <td>山科・松澤・堀江</td>
+      <td><strong>2026-05-08（今日）</strong></td>
+      <td><span class="badge badge-danger">最重要</span></td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>地銀×補助金営業の資料設計・戦略議論</td>
+      <td><span class="badge badge-warn">⏸ 停滞中</span></td>
+      <td>山科・松澤・高見・藤田</td>
+      <td>2026-03-19</td>
+      <td><span class="badge badge-danger">高</span></td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>常陽銀行アライアンス セキュリティ質問対応</td>
+      <td><span class="badge badge-info">✅ 完了見込</span></td>
+      <td>佐々木・藤田・山科・安達</td>
+      <td>2026-04-09</td>
+      <td><span class="badge badge-warn">中</span></td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>地方銀行への労務BPO対応領域の即席相談</td>
+      <td><span class="badge badge-ok">✅ 完了</span></td>
+      <td>山科・土橋</td>
+      <td>2026-03-06</td>
+      <td><span class="badge badge-pending">低</span></td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>Retool社アライアンス打ち合わせ後続</td>
+      <td><span class="badge badge-danger">💀 自然消滅</span></td>
+      <td>高橋拓海・山科</td>
+      <td>2026-04-08</td>
+      <td><span class="badge badge-warn">中</span></td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>パソナG2社（ビーウィズ・JOB HUB）アライアンス提案</td>
+      <td><span class="badge badge-info">🔄 要確認</span></td>
+      <td>山科・一杉</td>
+      <td>2025-11-27</td>
+      <td><span class="badge badge-warn">中</span></td>
+    </tr>
+  </table>
+
+  <!-- ======================================= -->
+  <!-- プロジェクト1 -->
+  <!-- ======================================= -->
+  <h2 class="section-title" id="project-1">① 🔄 本日始動 — 地銀DB整備と細川さんへの営業引継ぎ</h2>
+
+  <div class="project-card">
+    <div class="card-header">
+      <span class="status-icon">🏦</span>
+      <div>
+        <div class="card-title">地銀Notionデータベース整備 → 細川さんが営業主担当として引継ぎ決定</div>
+        <div class="card-meta">グループDM: 松澤七侑・山科・堀江孝輔 ／ 最終活動: <strong>2026-05-08（本日）</strong></div>
+      </div>
+    </div>
+
+    <div class="msg-log">
+      <div class="msg">
+        <span class="msg-who">松澤</span><span class="msg-date">04/13</span>
+        <div class="msg-body">山科さん堀江さん、本日はありがとうございました！いただいたデータ追記したので共有です。既存DBにある金融機関ページへは頭に追記：常陽銀行・広島銀行。新規で作成：あいち銀行・伊予銀行。今日のMTG文字起こしも添付します。</div>
+      </div>
+      <div class="msg">
+        <span class="msg-who">山科</span><span class="msg-date">04/14</span>
+        <div class="msg-body">「このDB、誰がどうやって使うんですかね。COREWOメンバー全員が参照するものなんですか？」「銀行の営業って基本高見さんですか？」</div>
+      </div>
+      <div class="msg">
+        <span class="msg-who">松澤</span><span class="msg-date">04/14</span>
+        <div class="msg-body">「一旦藤田さんが見ると思ってアップした。高見さんもpushの営業はほぼなさそう。細川さんが入られたら（最初のミッションは補助金事業のグロースと伺っているが）その辺が少し動きそう。昨日北國向けにまとめたが、地銀の補助金関与率もう少し上げられそう。」</div>
+      </div>
+      <div class="msg">
+        <span class="msg-who">堀江</span><span class="msg-date">04/14</span>
+        <div class="msg-body">J〜N列に役務取引等のデータ（BPO売上が含まれるはず）を入れました！</div>
+      </div>
+      <div class="msg">
+        <span class="msg-who">山科</span><span class="msg-date">05/08 ← 今日</span>
+        <div class="msg-body">「この件ってなにか動いてますかね？塩漬けしてしまっていたので細川さんにお願いしていこうかと思っていまして。」</div>
+      </div>
+      <div class="msg">
+        <span class="msg-who">堀江</span><span class="msg-date">05/08</span>
+        <div class="msg-body">「細川さんにお願いできるとありがたい。そもそもこれってCOREWOとBPIOでちょっと分かれてる話ですよね。」</div>
+      </div>
+      <div class="msg">
+        <span class="msg-who">山科</span><span class="msg-date">05/08</span>
+        <div class="msg-body">「一緒に振っちゃっていいと思います！来週、細川さんも入れて引継MTを入れます。細川さんが今日の1on1で各々持っているものを箇条書きでリストアップして誰が何するか決めようと言っている。」</div>
+      </div>
+      <div class="msg">
+        <span class="msg-who">松澤</span><span class="msg-date">05/08</span>
+        <div class="msg-body">「承知しました！」</div>
+      </div>
+    </div>
+
+    <dl>
+      <dt>資産</dt>
+      <dd>常陽・広島・あいち・伊予・北國銀行 等のNotionページ（BPO売上見込・役務収益データ入り）</dd>
+      <dt>課題</dt>
+      <dd>DBは作成済みだが「誰が営業するか」が未決のまま1ヶ月塩漬け。高見さんもpush営業できておらず、藤田さんも時間なし</dd>
+      <dt>転機</dt>
+      <dd>細川さん入社（補助金事業グロースがミッション）→ 地銀営業の主担当として引継ぐ方向に。本日山科さんが引継ぎMTを来週設定予定</dd>
+    </dl>
+
+    <div class="highlight-box">
+      <strong>引き上げポイント</strong><br>
+      来週の引継ぎMTで「細川さんが地銀DBをどう使って補助金営業するか」の具体アクションを決める。
+      Notionに蓄積したデータ（COREWO側の松澤・高見の補助金知見 ＋ BPIOの役務収益データ）を統合した攻め方を整理したい。
+    </div>
+  </div>
+
+  <!-- ======================================= -->
+  <!-- プロジェクト2 -->
+  <!-- ======================================= -->
+  <h2 class="section-title" id="project-2">② ⏸️ 停滞中 — 地銀×補助金営業の資料設計・戦略議論</h2>
+
+  <div class="project-card">
+    <div class="card-header">
+      <span class="status-icon">📋</span>
+      <div>
+        <div class="card-title">地銀経由でBPIO顧客へ大型補助金を展開する営業資料の設計と戦略議論</div>
+        <div class="card-meta">グループDM: 松澤七侑・藤田陽介・高見優希・舘田・山科 ／ 最終活動: 2026-03-19</div>
+      </div>
+    </div>
+
+    <div class="msg-log">
+      <div class="msg">
+        <span class="msg-who">山科</span><span class="msg-date">02/10</span>
+        <div class="msg-body">【グループDM作成・補助金営業プロジェクト発足】松澤・高見に声がけ。対象補助金：成長加速化投資補助金・大規模成長投資補助金（超大型）</div>
+      </div>
+      <div class="msg">
+        <span class="msg-who">山科</span><span class="msg-date">02/12</span>
+        <div class="msg-body">「補助金の件で、資料設計のたたきを共有。①行員→顧客展開用はペラ1。②弊社→行員説明用は刺し方・銀行のメリットがわかるものを別途。違和感・過不足あればコメントを。」</div>
+      </div>
+      <div class="msg">
+        <span class="msg-who">松澤</span><span class="msg-date">02/13</span>
+        <div class="msg-body">「CCI向け大型補助金資料を共有（60件の議論スレッド）。p2:補助金に合う企業像 / p5:競合（船井・F&M）の動向も整理した。」</div>
+      </div>
+      <div class="msg">
+        <span class="msg-who">高見</span><span class="msg-date">03/19</span>
+        <div class="msg-body">（資料を山科にシェア・13件の返信スレッド）</div>
+      </div>
+    </div>
+
+    <dl>
+      <dt>核心戦略</dt>
+      <dd>地銀が顧客企業に補助金を紹介し、採択後の業務整備（労務BPO等）をBPIOが担う。銀行は非金利収益、BPIOは案件獲得というwin-winモデル</dd>
+      <dt>競合分析</dt>
+      <dd>船井総研・F&Mが同領域で先行。差別化はBPO実行力の組み合わせ</dd>
+      <dt>現状</dt>
+      <dd>3月以降グループDMに新規投稿なし。資料は作成済みだが、営業担当が決まらず実行フェーズに入れていない（① の「細川さん引継ぎ」と連動）</dd>
+    </dl>
+
+    <div class="note-box">
+      <strong>なぜ停滞しているか</strong><br>
+      「銀行営業は高見さん？→ほぼpushできていない」「藤田さんは時間がない」という体制の課題が4/14の会話で判明。
+      資料・戦略は揃っているのに動かせる人がいない状態。細川さんの参画がブレークスルーになる可能性が高い。
+    </div>
+
+    <div class="highlight-box">
+      <strong>引き上げポイント</strong><br>
+      プロジェクト①の細川さん引継ぎMTに、この補助金営業戦略も合わせて議題に入れる。
+      「①地銀DBの活用方針 ＋ ②補助金×BPO提案の営業フロー」を一度に整理できるチャンス。
+    </div>
+  </div>
+
+  <!-- ======================================= -->
+  <!-- プロジェクト3 -->
+  <!-- ======================================= -->
+  <h2 class="section-title" id="project-3">③ ✅ 完了見込 — 常陽銀行アライアンス セキュリティ質問対応</h2>
+
+  <div class="project-card">
+    <div class="card-header">
+      <span class="status-icon">🔒</span>
+      <div>
+        <div class="card-title">常陽銀行（茨城県の地銀）からのセキュリティ対策確認回答</div>
+        <div class="card-meta">グループDM: 佐々木あさひ・藤田陽介・山科・安達祐人 ／ 最終活動: 2026-04-09</div>
+      </div>
+    </div>
+
+    <div class="msg-log">
+      <div class="msg">
+        <span class="msg-who">佐々木（COREWO）</span><span class="msg-date">04/09</span>
+        <div class="msg-body">「現在常陽銀行とBPIOの事業連携を進めており、常陽銀行から情報セキュリティ対策に関する質問を受けています。本日17時までに安達さんが答えられる範囲でご回答いただけますでしょうか。（ISMS/プライバシーマーク認証・マニュアル整備・従業員教育・リモートワーク規定 等）」</div>
+      </div>
+    </div>
+
+    <dl>
+      <dt>背景</dt>
+      <dd>常陽銀行とBPIOの事業連携プロセス（銀行側のデューデリジェンス）として、BPIOの情報管理体制について確認が入った</dd>
+      <dt>依頼先</dt>
+      <dd>経営企画室の安達祐人さん（セキュリティ管理担当）に17時期限で回答依頼。3件の返信あり（内容は未確認）</dd>
+      <dt>現状</dt>
+      <dd>返信が3件あり、何らかの回答がなされたと推測。常陽銀行との連携プロセス自体は <code>pj_常陽銀行_all</code> チャンネルで進行中</dd>
+    </dl>
+
+    <div class="info-box">
+      <strong>補足</strong><br>
+      このDMは「連携プロセスの一コマ」として完結している可能性が高い。
+      常陽銀行との連携本体は専用チャンネル（pj_常陽銀行_all）で動いており、そちらを参照するとフルコンテキストが把握できる。
+    </div>
+  </div>
+
+  <!-- ======================================= -->
+  <!-- プロジェクト4 -->
+  <!-- ======================================= -->
+  <h2 class="section-title" id="project-4">④ ✅ 完了 — 地方銀行への労務BPO対応領域の即席相談</h2>
+
+  <div class="project-card">
+    <div class="card-header">
+      <span class="status-icon">📞</span>
+      <div>
+        <div class="card-title">地方銀行との業務提携交渉中に発生した「労務BPO対応領域」の技術的質問を社労士・土橋さんに緊急相談</div>
+        <div class="card-meta">DM: 山科 → 土橋（SRA） ／ 最終活動: 2026-03-06</div>
+      </div>
+    </div>
+
+    <div class="msg-log">
+      <div class="msg">
+        <span class="msg-who">山科</span><span class="msg-date">03/06</span>
+        <div class="msg-body">「急なお願いですが、労務についてご相談したいことがあり、本日30〜60分お時間をいただけますでしょうか。急ぎの案件でして——地方銀行との業務提携交渉中に先方から問い合わせを受けています。」</div>
+      </div>
+      <div class="msg">
+        <span class="msg-who">山科</span><span class="msg-date">03/06 16時前</span>
+        <div class="msg-body">相談内容：①勤怠管理（医療・福祉・物流など複雑な勤務体系）のBPO対応構造、②業界ならではの特殊な労務論点でBPOで対応しきれない部分はあるか</div>
+      </div>
+      <div class="msg">
+        <span class="msg-who">土橋</span><span class="msg-date">03/06</span>
+        <div class="msg-body">「了解です！ちょっと考えておきますね。」→ 16時MTG実施</div>
+      </div>
+    </div>
+
+    <dl>
+      <dt>背景</dt>
+      <dd>地方銀行との業務提携交渉（銀行→中小企業への労務BPO紹介スキーム）において、銀行側から「御社のBPOはどこまで対応できるか」という具体的な質問を受けた</dd>
+      <dt>結果</dt>
+      <dd>当日16時に土橋さんとMTGを実施し、回答を整理した（と推定）。その後の追加相談はなし</dd>
+    </dl>
+
+    <div class="info-box">
+      このDMは1日で完結しており、アクション不要。ただし「地方銀行への労務BPO提案時のFAQ」として、山科さんが当日まとめた回答内容を社内ナレッジとして残すと今後使いまわせる。
+    </div>
+  </div>
+
+  <!-- ======================================= -->
+  <!-- プロジェクト5 -->
+  <!-- ======================================= -->
+  <h2 class="section-title" id="project-5">⑤ 💀 自然消滅 — Retool社アライアンス打ち合わせ後続</h2>
+
+  <div class="project-card">
+    <div class="card-header">
+      <span class="status-icon">💀</span>
+      <div>
+        <div class="card-title">HPから問い合わせのあったRetool社とのアライアンス打ち合わせ（4/8）後のフォローアップ</div>
+        <div class="card-meta">DM: 高橋拓海 → 山科 ／ 最終活動: 2026-04-08</div>
+      </div>
+    </div>
+
+    <dl>
+      <dt>経緯</dt>
+      <dd>4/07 高橋拓海さんが「会社HPから問い合わせがあったRetool社と明日11時打ち合わせをお願いしたい」とDMで依頼。山科さんが承知</dd>
+      <dt>現状</dt>
+      <dd>4/8打ち合わせ以降、Retool社に関する言及なし。DM内容は別テーマ（オフィス声量問題・アソビシステム等）に移行</dd>
+    </dl>
+
+    <div class="note-box">
+      <strong>問題点</strong><br>
+      HPから能動的に問い合わせてきた先（Retool社）に対して、打ち合わせ後30日以上フォローアップが見当たらない。
+      継続・見送りのどちらかを山科さんか高橋さんに確認し、見送りなら先方へ一報が必要。
+    </div>
+  </div>
+
+  <!-- ======================================= -->
+  <!-- プロジェクト6 -->
+  <!-- ======================================= -->
+  <h2 class="section-title" id="project-6">⑥ 🔄 要確認 — パソナG2社アライアンス提案の続報</h2>
+
+  <div class="project-card">
+    <div class="card-header">
+      <span class="status-icon">🔄</span>
+      <div>
+        <div class="card-title">パソナグループ2社（ビーウィズ・JOB HUB）への協業提案、服部さん・浦田さん確認後の展開</div>
+        <div class="card-meta">DM: 山科 ↔ 一杉 ／ 最終活動（DM内）: 2025-11-27</div>
+      </div>
+    </div>
+
+    <dl>
+      <dt>状況</dt>
+      <dd>2025/11月にビーウィズ用資料をFIX。「服部さん・浦田さんに確認後、JOB HUBにもエッセンスを加えてほしい」で会話終了</dd>
+      <dt>未確認</dt>
+      <dd>服部さん・浦田さんへの資料確認結果 ／ JOB HUBへの展開有無 ／ 提案実施と先方反応</dd>
+    </dl>
+
+    <div class="info-box">
+      DM内の続報はないが、関連チャンネルに引き継がれている可能性がある。一杉さんへ「パソナG2社提案はその後どうなりましたか？」と1点確認するだけで状況を把握できる。
+    </div>
+  </div>
+
+  <!-- ネクストアクション -->
+  <h2 class="section-title" id="actions">ネクストアクション</h2>
+
+  <div class="flow">
+    <div class="flow-step active">① 細川さん引継ぎMT<br><small>来週設定済み</small></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step">② 補助金営業フロー<br><small>MTに同議題で</small></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step">③ Retool結果確認<br><small>高橋 or 山科</small></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step">④ パソナ提案確認<br><small>一杉に1点</small></div>
+  </div>
+
+  <ul class="action-list">
+    <li>
+      <span class="who">山科</span>
+      <strong>【最優先】</strong> 来週の細川さん引継ぎMTに「①地銀Notion DBの活用方針 ＋ ②補助金×BPO営業フロー」を議題に追加する。松澤・堀江・高見のインプットをまとめておく
+    </li>
+    <li>
+      <span class="who">山科</span>
+      Retool社打ち合わせ（4/8）の結果を高橋さんに確認。継続ならフォローアップ連絡を送付、見送りなら先方への一報と次回問い合わせ対応フロー整備
+    </li>
+    <li>
+      <span class="who">山科</span>
+      一杉さんに「パソナG2社（ビーウィズ・JOB HUB）への提案はその後どうなりましたか？」と確認
+    </li>
+    <li>
+      <span class="who">山科・松澤</span>
+      地方銀行へのBPO提案時の「労務対応領域FAQ」を社内ナレッジとして整備する（土橋さんと3/6にまとめた内容が出発点になる）
+    </li>
+  </ul>
+
+  <div class="report-footer">
+    Slack サルベージ｜アライアンス対応DM — Generated 2026-05-08 — BPIO co., Ltd.
+  </div>
+</div>
+
+<script>
+  const pills = document.querySelectorAll('.pill');
+  const sections = document.querySelectorAll('[id]');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        pills.forEach(p => p.classList.remove('active'));
+        const active = document.querySelector('.pill[href="#' + entry.target.id + '"]');
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-80px 0px -80% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
